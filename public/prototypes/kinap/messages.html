@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinap · Messagerie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --screen:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+    --online:#27C26B;
+    --amber:#E8A93B;
+  }
+  body{
+    font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+    background:#22242A;display:flex;justify-content:center;align-items:flex-start;
+    min-height:100vh;padding:28px 16px;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  .phone{
+    width:100%;max-width:412px;height:min(880px,94vh);
+    background:
+      radial-gradient(560px 360px at 100% -8%, rgba(26,163,154,.12), transparent 60%),
+      radial-gradient(460px 360px at -10% 108%, rgba(14,27,42,.05), transparent 55%),
+      var(--screen);
+    border-radius:42px;overflow:hidden;position:relative;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.6), 0 0 0 10px #0c0d10, 0 0 0 12px #2b2d33;
+    display:flex;flex-direction:column;
+  }
+
+  /* TOP BAR */
+  .topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 20px 6px}
+  .logo{font-family:'Sora';font-weight:800;font-size:21px;letter-spacing:-.02em}
+  .logo span{color:var(--teal)}
+  .bell{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
+  .bell::after{content:"";position:absolute;top:10px;right:11px;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+
+  .mtitle{flex-shrink:0;font-family:'Sora';font-weight:700;font-size:27px;letter-spacing:-.02em;padding:6px 20px 12px}
+
+  /* SEARCH */
+  .search{flex-shrink:0;margin:0 20px 14px;display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 16px;height:46px}
+  .search svg{color:var(--muted)}
+  .search input{border:none;outline:none;background:transparent;font:500 14.5px 'Hanken Grotesk';color:var(--ink);width:100%}
+  .search input::placeholder{color:var(--muted)}
+
+  /* AVATARS ROW */
+  .people{flex-shrink:0;display:flex;gap:16px;padding:2px 20px 16px;overflow-x:auto;scrollbar-width:none}
+  .people::-webkit-scrollbar{display:none}
+  .person{flex:0 0 auto;position:relative;cursor:pointer}
+  .person img{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 6px 16px -8px rgba(14,27,42,.35)}
+  .person.sel{padding:3px;border:2px solid var(--teal);border-radius:50%}
+  .person.sel img{width:54px;height:54px}
+  .person .od{position:absolute;right:1px;bottom:1px;width:14px;height:14px;border-radius:50%;border:2.5px solid var(--screen)}
+  .person.sel .od{right:3px;bottom:3px}
+  .od.on{background:var(--online)} .od.busy{background:var(--amber)}
+
+  /* CONVERSATION CARD */
+  .card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-top-left-radius:28px;border-top-right-radius:28px;margin:0 0 0 0;box-shadow:0 -10px 40px -28px rgba(14,27,42,.4)}
+  .conv-head{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+  .conv-head .av{width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--line);cursor:pointer}
+  .conv-head .meta{flex:1;min-width:0}
+  .conv-head .nm{font-family:'Sora';font-weight:600;font-size:16px;letter-spacing:-.01em}
+  .conv-head .st{font-size:12px;color:var(--teal-deep);font-weight:600;margin-top:2px;display:flex;align-items:center;gap:6px}
+  .conv-head .st::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--online)}
+  .hbtn{width:40px;height:40px;border-radius:12px;background:var(--teal-tint);color:var(--teal-deep);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.18s;flex-shrink:0}
+  .hbtn:hover{background:var(--teal-tint-2);transform:translateY(-1px)}
+
+  /* THREAD */
+  .thread{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 8px;scrollbar-width:none;display:flex;flex-direction:column;gap:3px}
+  .thread::-webkit-scrollbar{display:none}
+
+  .msg{display:flex;margin-top:9px;max-width:84%;animation:pop .42s cubic-bezier(.2,.9,.3,1) both}
+  .msg.in{align-self:flex-start}
+  .msg.out{align-self:flex-end;flex-direction:row-reverse}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+  .wrap-b{display:flex;flex-direction:column}
+  .bubble{padding:11px 15px;font-size:14.5px;line-height:1.45}
+  .in .bubble{background:var(--teal-tint);color:var(--ink);border-radius:18px 18px 18px 5px}
+  .out .bubble{background:var(--ink);color:#fff;border-radius:18px 18px 5px 18px}
+  .time{font-size:10.5px;color:var(--muted);margin-top:4px;padding:0 6px}
+  .out .time{text-align:right}
+
+  .typing{display:flex;align-items:center;gap:4px;background:var(--teal-tint);border-radius:18px 18px 18px 5px;padding:13px 16px;align-self:flex-start;margin-top:9px;animation:pop .35s cubic-bezier(.2,.9,.3,1) both}
+  .typing i{width:7px;height:7px;border-radius:50%;background:var(--teal-deep);opacity:.5;animation:bounce 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.18s}
+  .typing i:nth-child(3){animation-delay:.36s}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+  /* COMPOSER */
+  .composer{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:12px 16px 12px;background:#fff;border-top:1px solid var(--line)}
+  .field{flex:1;display:flex;align-items:center;gap:10px;background:var(--screen);border:1px solid var(--line);border-radius:999px;padding:0 8px 0 16px;height:46px;overflow:hidden}
+  .field input{flex:1;border:none;outline:none;background:transparent;font:500 14.5px 'Hanken Grotesk';color:var(--ink);min-width:0}
+  .field input::placeholder{color:var(--muted)}
+  .clip{color:var(--muted);display:flex;cursor:pointer}
+  .field.active{border-color:var(--teal-tint-2);box-shadow:0 0 0 4px var(--teal-tint)}
+  .send{width:46px;height:46px;border-radius:50%;background:var(--ink);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;flex-shrink:0}
+  .send:hover{transform:translateY(-2px) rotate(8deg);box-shadow:0 12px 24px -10px rgba(14,27,42,.55)}
+  .send.sending{animation:sendPulse .55s cubic-bezier(.2,.8,.3,1)}
+  @keyframes sendPulse{0%{transform:scale(1) rotate(0)}35%{transform:scale(.78) rotate(-10deg)}62%{transform:scale(1.16) rotate(18deg);background:var(--teal-deep);box-shadow:0 14px 28px -8px rgba(14,139,130,.6)}100%{transform:scale(1) rotate(0)}}
+
+  /* BOTTOM NAV */
+  .tabbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-around;background:#fff;border-top:1px solid var(--line);padding:11px 14px 18px}
+  .tab{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:.2s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:var(--teal-tint);color:var(--teal-deep)}
+</style>
+</head>
+<body>
+  <div class="phone">
+
+    <div class="topbar">
+      <div class="logo">Kin<span>ap</span></div>
+      <div class="bell">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3A4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </div>
+    </div>
+
+    <div class="mtitle">Messages</div>
+
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input placeholder="Rechercher…">
+    </div>
+
+    <div class="people">
+      <div class="person sel" id="replay" title="Rejouer la conversation">
+        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=120&h=120&fit=crop&q=70" alt="">
+        <span class="od on"></span>
+      </div>
+      <div class="person">
+        <img src="https://images.unsplash.com/photo-1631248055158-edec7a3c072b?w=120&h=120&fit=crop&q=70" alt="">
+        <span class="od busy"></span>
+      </div>
+      <div class="person">
+        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=120&h=120&fit=crop&q=70" alt="">
+        <span class="od busy"></span>
+      </div>
+      <div class="person">
+        <img src="https://images.unsplash.com/photo-1758691463333-c79215e8bc3b?w=120&h=120&fit=crop&crop=faces&q=70" alt="">
+        <span class="od on"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="conv-head">
+        <img class="av" id="replay2" src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=100&h=100&fit=crop&q=70" alt="Cabinet Lyon Centre" title="Rejouer la conversation">
+        <div class="meta">
+          <div class="nm">Cabinet Lyon Centre</div>
+          <div class="st">En ligne</div>
+        </div>
+        <button class="hbtn" title="Voir les disponibilités">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+        </button>
+        <button class="hbtn" title="Voir le profil">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        </button>
+      </div>
+
+      <div class="thread" id="thread"></div>
+
+      <div class="composer">
+        <div class="field" id="field">
+          <input id="composerInput" placeholder="Écrire un message…">
+          <span class="clip"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5 12.5 20a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L10 16.5a1.6 1.6 0 0 1-2.3-2.3l7.8-7.8"/></svg></span>
+        </div>
+        <button class="send" id="sendBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></div>
+      <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>
+      <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></div>
+    </div>
+
+  </div>
+
+<script>
+  const thread = document.getElementById('thread');
+  const input = document.getElementById('composerInput');
+  const field = document.getElementById('field');
+  const sendBtn = document.getElementById('sendBtn');
+
+  const conversation = [
+    {side:'in',  time:'10:15', text:"Bonjour Dr. Laurent, nous avons vu votre profil et serions intéressés pour un remplacement."},
+    {side:'out', time:'11:09', text:"Bonjour, merci pour votre message, je suis disponible du 11 au 20 mai."},
+    {side:'in',  time:'11:25', text:"Cela nous arrange. Pourriez-vous bloquer ces dates pour un remplacement dans notre établissement ?"},
+    {side:'out', time:'11:43', text:"Bien sûr, je vous envoie ma proposition de remplacement, vous n'aurez qu'à l'accepter."}
+  ];
+
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const scroll = () => thread.scrollTo({top:thread.scrollHeight, behavior:'smooth'});
+
+  function addBubble(side, text, time){
+    const msg = document.createElement('div');
+    msg.className = 'msg ' + side;
+    const w = document.createElement('div'); w.className = 'wrap-b';
+    const b = document.createElement('div'); b.className = 'bubble'; b.textContent = text;
+    const t = document.createElement('div'); t.className = 'time'; t.textContent = time;
+    w.appendChild(b); w.appendChild(t); msg.appendChild(w); thread.appendChild(msg);
+    scroll();
+  }
+
+  function typingIndicator(){
+    const el = document.createElement('div');
+    el.className = 'typing';
+    el.innerHTML = '<i></i><i></i><i></i>';
+    thread.appendChild(el); scroll();
+    return el;
+  }
+
+  // type our own message letter by letter in the bottom input, sliding to follow the end
+  async function typeInInput(text){
+    field.classList.add('active');
+    input.value = '';
+    for(let i=0;i<text.length;i++){
+      input.value += text[i];
+      input.scrollLeft = input.scrollWidth;     // slide so the end stays visible
+      const c = text[i];
+      let d = 34 + Math.random()*46;
+      if(c === ' ') d += 20;
+      if('.,?!'.includes(c)) d += 140;
+      await wait(d);
+    }
+    await wait(260);
+  }
+
+  async function pressSend(text, time){
+    sendBtn.classList.add('sending');
+    await wait(180);
+    input.value = '';
+    input.scrollLeft = 0;
+    field.classList.remove('active');
+    addBubble('out', text, time);
+    await wait(380);
+    sendBtn.classList.remove('sending');
+  }
+
+  let playing = false;
+  async function play(){
+    if(playing) return; playing = true;
+    thread.querySelectorAll('.msg, .typing').forEach(n => n.remove());
+    input.value = ''; field.classList.remove('active');
+    await wait(550);
+    for(const m of conversation){
+      if(m.side === 'in'){
+        const ind = typingIndicator();
+        await wait(1200 + Math.random()*500);
+        ind.remove();
+        addBubble('in', m.text, m.time);
+        await wait(700);
+      } else {
+        await typeInInput(m.text);
+        await pressSend(m.text, m.time);
+        await wait(550);
+      }
+    }
+    playing = false;
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  document.getElementById('replay2').addEventListener('click', play);
+  window.addEventListener('load', () => setTimeout(play, 350));
+</script>
+<style data-embed-fix>html,body{background:#F4F6F8!important;margin:0!important;padding:0!important;min-height:100%!important;display:block!important}.phone{max-width:none!important;width:100%!important;height:100vh!important;border-radius:0!important;box-shadow:none!important}</style>
+</body>
+</html>

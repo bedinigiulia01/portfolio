@@ -1,0 +1,28 @@
+---
+import type { Lang, UIKey } from '../i18n/ui';
+export interface Props {
+  lang: Lang;
+  t: (key: UIKey) => string;
+}
+const { t } = Astro.props;
+---
+<section id="contact">
+  <div class="wrap contact">
+    <div class="avail reveal"><span class="pulse"></span><span>{t('avail')}</span></div>
+    <h2 class="reveal" set:html={t('contact_title')} />
+    <a href="mailto:bedinigiulia01@gmail.com" class="cta reveal" data-link><span>{t('contact_cta')}</span><span class="ar">↗</span></a>
+  </div>
+</section>
+
+<style>
+  .contact { margin-top: clamp(100px, 14vw, 200px); border-top: 1px solid var(--line); padding-top: clamp(50px, 7vw, 90px); }
+  .contact .avail { font-family: var(--font-mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+  .contact .avail .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); position: relative; }
+  .contact .avail .pulse::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(3.2); opacity: 0; } }
+  .contact h2 { font-family: var(--font-display); font-weight: 330; font-size: clamp(40px, 8vw, 110px); line-height: .95; letter-spacing: -.03em; max-width: 14ch; }
+  .contact h2 :global(em) { font-style: italic; }
+  .contact .cta { display: inline-flex; align-items: center; gap: 14px; margin-top: 44px; font-family: var(--font-display); font-size: clamp(20px, 2.4vw, 30px); font-style: italic; border-bottom: 1.5px solid var(--ink); padding-bottom: 6px; }
+  .contact .cta .ar { transition: transform .4s var(--ease); }
+  .contact .cta:hover .ar { transform: translate(6px, -6px); }
+</style>

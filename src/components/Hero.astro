@@ -1,0 +1,50 @@
+---
+import type { Lang, UIKey } from '../i18n/ui';
+export interface Props {
+  lang: Lang;
+  t: (key: UIKey) => string;
+}
+const { t } = Astro.props;
+---
+<header class="hero">
+  <div class="wrap">
+    <div class="label">{t('hero_label')}</div>
+    <div class="hero-grid">
+      <div>
+        <h1>
+          <span class="mask"><span set:html={t('hero_l1')} /></span>
+          <span class="mask"><span><em set:html={t('hero_l2')} /><span class="dot">.</span></span></span>
+        </h1>
+        <div class="intro reveal">
+          <div class="barline"></div>
+          <p>{t('hero_intro')}</p>
+        </div>
+      </div>
+      <div class="ph heroimg reveal" data-link>
+        <img src="/assets/hero.jpg" alt="UX/UI design workspace — wireframe sketches and devices" />
+      </div>
+    </div>
+    <div class="meta-row reveal">
+      <span>{t('meta_role')}</span>
+      <span>{t('meta_status')}</span>
+      <span>Lyon, France</span>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hero { padding-top: clamp(120px, 18vh, 180px); }
+  .hero .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 14px; margin-bottom: 34px; }
+  .hero .label::before { content: ""; width: 34px; height: 1px; background: var(--muted); }
+  .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(30px, 5vw, 70px); align-items: end; }
+  @media (max-width: 880px) { .hero-grid { grid-template-columns: 1fr; } }
+  .hero h1 { font-family: var(--font-display); font-weight: 330; font-size: clamp(38px, 6.6vw, 98px); line-height: .9; letter-spacing: -.03em; }
+  .hero h1 em { font-style: italic; }
+  .hero h1 :global(.dot) { color: var(--accent); }
+  .hero .intro { margin-top: 38px; display: flex; gap: 16px; max-width: 44ch; }
+  .hero .intro .barline { width: 42px; height: 1px; background: var(--ink); margin-top: 10px; flex-shrink: 0; }
+  .hero .intro p { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.85; color: var(--muted); }
+  .heroimg { position: relative; overflow: hidden; height: clamp(280px, 40vw, 480px); border-radius: 3px; background: linear-gradient(135deg, #d9cfc0, #b7a892 55%, #8f8470); }
+  .heroimg img { width: 100%; height: 100%; object-fit: cover; }
+  .meta-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--vert); border-top: 1px solid var(--line); padding-top: 16px; margin-top: clamp(48px, 7vw, 90px); }
+</style>

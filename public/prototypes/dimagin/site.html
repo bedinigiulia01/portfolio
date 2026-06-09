@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIMAGIN — Soft tech / glass</title>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&f[]=jetbrains-mono@400,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0C1222; --ink-2:#3A4258; --ink-3:#6B7392; --line:rgba(12,18,34,.08);
+    --blue:#2D6BFF; --mint:#1FD9A6; --coral:#FF5C8A; --gold:#FFC93C;
+    --glass-fill:rgba(255,255,255,.55); --glass-fill-2:rgba(255,255,255,.38);
+    --glass-stroke:rgba(255,255,255,.7);
+    --glass-shadow:0 24px 60px -20px rgba(24,40,90,.35);
+    --glass-blur:blur(22px) saturate(140%);
+    --t-display:clamp(3rem,7vw,6rem); --t-h1:clamp(2rem,4vw,3.1rem);
+    --t-h2:1.65rem; --t-h3:1.2rem; --t-body:1.05rem; --t-small:.9rem; --t-label:.72rem;
+    --r-sm:14px; --r-md:22px; --r-lg:32px;
+    --ease:cubic-bezier(.22,1,.36,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:"Satoshi",sans-serif;color:var(--ink);background:#EAF2FF;line-height:1.55;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+  /* aurora bg */
+  .aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;background:#EAF2FF}
+  .aurora span{position:absolute;border-radius:50%;filter:blur(80px);opacity:.6;mix-blend-mode:multiply}
+  .a1{width:55vw;height:55vw;top:-12%;left:-8%;background:radial-gradient(circle,#9CC4FF,transparent 65%);animation:drift1 22s var(--ease) infinite alternate}
+  .a2{width:48vw;height:48vw;top:8%;right:-12%;background:radial-gradient(circle,#A8F4DA,transparent 65%);animation:drift2 26s var(--ease) infinite alternate}
+  .a3{width:42vw;height:42vw;bottom:-15%;left:25%;background:radial-gradient(circle,#FFD9E4,transparent 65%);animation:drift3 30s var(--ease) infinite alternate}
+  .a4{width:36vw;height:36vw;bottom:5%;right:8%;background:radial-gradient(circle,#FFEDB0,transparent 65%);animation:drift1 28s var(--ease) infinite alternate-reverse}
+  @keyframes drift1{to{transform:translate(8%,10%) scale(1.15)}}
+  @keyframes drift2{to{transform:translate(-10%,8%) scale(1.1)}}
+  @keyframes drift3{to{transform:translate(6%,-12%) scale(1.2)}}
+  .grain{position:fixed;inset:0;z-index:-1;opacity:.04;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+  .glass{background:linear-gradient(135deg,var(--glass-fill),var(--glass-fill-2));
+    -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-stroke);
+    box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.6);border-radius:var(--r-lg)}
+
+  /* ===== NAV ===== */
+  nav{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:50;
+    display:flex;align-items:center;gap:6px;padding:8px 8px 8px 20px;border-radius:99px;
+    background:linear-gradient(135deg,var(--glass-fill),var(--glass-fill-2));
+    -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-stroke);box-shadow:var(--glass-shadow)}
+  .logo{font-family:"Clash Display";font-weight:700;font-size:1.05rem;letter-spacing:-.02em;margin-right:14px}
+  .logo b{background:linear-gradient(100deg,var(--blue),var(--mint));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .nav-link{border:none;background:none;font-family:"Satoshi";font-weight:500;font-size:.92rem;color:var(--ink-2);
+    padding:9px 16px;border-radius:99px;cursor:pointer;transition:all .3s var(--ease)}
+  .nav-link:hover{color:var(--ink)}
+  .nav-link.on{background:var(--ink);color:#fff}
+
+  /* ===== PAGE SYSTEM ===== */
+  main{padding-top:96px}
+  .page{display:none}
+  .page.active{display:block;animation:pageIn .55s var(--ease)}
+  @keyframes pageIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .page.active .stg{animation:rise .7s var(--ease) backwards}
+  .page.active .stg:nth-child(1){animation-delay:.05s}
+  .page.active .stg:nth-child(2){animation-delay:.13s}
+  .page.active .stg:nth-child(3){animation-delay:.21s}
+  .page.active .stg:nth-child(4){animation-delay:.29s}
+  .page.active .stg:nth-child(5){animation-delay:.37s}
+  @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+
+  section{padding:60px 0}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:var(--t-label);letter-spacing:.18em;
+    text-transform:uppercase;color:var(--blue);font-weight:500;margin-bottom:14px}
+  .sec-title{font-family:"Clash Display";font-weight:600;font-size:var(--t-h1);line-height:1.05;letter-spacing:-.02em;margin-bottom:10px}
+  .sec-sub{color:var(--ink-3);font-size:var(--t-body);max-width:48ch;margin-bottom:40px}
+
+  /* buttons / tags */
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:15px 26px;border-radius:99px;
+    font-weight:700;font-size:var(--t-body);border:none;cursor:pointer;font-family:"Satoshi";
+    transition:transform .35s var(--ease),box-shadow .35s var(--ease),filter .35s var(--ease)}
+  .btn:hover{transform:translateY(-3px);filter:brightness(1.05)}
+  .btn:active{transform:translateY(0) scale(.98)}
+  .btn-primary{background:linear-gradient(120deg,var(--blue),#4D8BFF);color:#fff;box-shadow:0 16px 30px -12px rgba(45,107,255,.7)}
+  .btn-glass{color:var(--ink);background:linear-gradient(135deg,var(--glass-fill),var(--glass-fill-2));
+    -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-stroke);box-shadow:var(--glass-shadow)}
+  .tag{padding:7px 14px;border-radius:99px;font-size:var(--t-small);font-weight:500;
+    border:1px solid var(--glass-stroke);background:rgba(255,255,255,.45);
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .tag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  .t-blue::before{background:var(--blue)}.t-mint::before{background:var(--mint)}
+  .t-gold::before{background:var(--gold)}.t-coral::before{background:var(--coral)}
+
+  /* ===== HOME ===== */
+  .hero{min-height:78vh;display:flex;flex-direction:column;justify-content:center;position:relative}
+  .badge{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;padding:9px 16px;border-radius:99px;font-size:var(--t-small);font-weight:500;margin-bottom:28px}
+  .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 4px rgba(31,217,166,.25);animation:pulse 2s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 9px rgba(31,217,166,0)}}
+  .hero h1{font-family:"Clash Display";font-weight:700;font-size:var(--t-display);line-height:.92;letter-spacing:-.03em}
+  .hero h1 .grad{background:linear-gradient(100deg,var(--blue),var(--mint) 70%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .lede{font-size:1.2rem;color:var(--ink-2);max-width:42ch;margin-top:22px}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+  .floaties{position:absolute;inset:0;pointer-events:none;z-index:-1}
+  .floaty{position:absolute;border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.6),rgba(255,255,255,.25));
+    -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.7);box-shadow:0 20px 40px -16px rgba(40,70,150,.4)}
+  .f1{width:100px;height:100px;top:14%;right:12%;animation:float 7s var(--ease) infinite}
+  .f2{width:64px;height:64px;top:60%;right:28%;border-radius:50%;background:linear-gradient(135deg,rgba(45,107,255,.55),rgba(31,217,166,.35));animation:float 9s var(--ease) infinite 1s}
+  .f3{width:50px;height:50px;top:32%;right:40%;border-radius:16px;background:linear-gradient(135deg,rgba(255,201,60,.6),rgba(255,92,138,.4));animation:float 6s var(--ease) infinite .5s}
+  @keyframes float{50%{transform:translateY(-24px) rotate(8deg)}}
+
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:760px){.feat-grid{grid-template-columns:1fr}}
+  .feat{padding:26px;transition:transform .4s var(--ease)}
+  .feat:hover{transform:translateY(-6px)}
+  .feat .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:1.3rem;margin-bottom:16px;color:#fff}
+  .feat h3{font-family:"Clash Display";font-weight:600;font-size:var(--t-h3);margin-bottom:6px}
+  .feat p{color:var(--ink-2);font-size:var(--t-small)}
+
+  .cta-band{padding:46px;text-align:center;margin-top:10px}
+  .cta-band h2{font-family:"Clash Display";font-weight:600;font-size:var(--t-h1);letter-spacing:-.02em}
+  .cta-band p{color:var(--ink-2);margin:10px auto 26px;max-width:40ch}
+
+  /* ===== WORK ===== */
+  .work-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:760px){.work-grid{grid-template-columns:1fr}}
+  .proj{padding:0;overflow:hidden;cursor:pointer;transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+  .proj:hover{transform:translateY(-8px);box-shadow:0 40px 70px -28px rgba(24,40,90,.45)}
+  .proj .thumb{height:200px;position:relative;overflow:hidden}
+  .proj .thumb .blob{position:absolute;inset:0;transition:transform .6s var(--ease)}
+  .proj .thumb .blob svg{width:100%;height:100%;display:block}
+  .proj:hover .thumb .blob{transform:scale(1.06)}
+  .proj .thumb .tagdot{position:absolute;top:16px;left:16px;padding:6px 13px;border-radius:99px;
+    font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+    background:rgba(255,255,255,.7);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .proj .body{padding:22px 24px 26px}
+  .proj h3{font-family:"Clash Display";font-weight:600;font-size:1.35rem;letter-spacing:-.01em}
+  .proj p{color:var(--ink-3);font-size:var(--t-small);margin-top:6px}
+  .proj .arrow{margin-top:14px;display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--blue);transition:gap .3s var(--ease)}
+  .proj:hover .arrow{gap:14px}
+  .g1{background:linear-gradient(135deg,#2D6BFF,#1FD9A6)}
+  .g2{background:linear-gradient(135deg,#FF5C8A,#FFC93C)}
+  .g3{background:linear-gradient(135deg,#1FD9A6,#9CC4FF)}
+  .g4{background:linear-gradient(135deg,#7C5CFF,#2D6BFF)}
+  .g5{background:linear-gradient(135deg,#FFC93C,#FF5C8A)}
+  .g6{background:linear-gradient(135deg,#2D6BFF,#7C5CFF)}
+  .outline-word{font-family:"Clash Display";font-weight:700;font-size:clamp(4rem,16vw,12rem);line-height:.85;
+    letter-spacing:-.04em;color:transparent;-webkit-text-stroke:1.5px rgba(12,18,34,.12);margin:30px 0 -10px}
+
+  /* ===== CONTACT ===== */
+  .contact-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:22px}
+  @media(max-width:760px){.contact-grid{grid-template-columns:1fr}}
+  .info-card{padding:34px}
+  .info-card .row{margin-bottom:22px}
+  .info-card .lab{font-family:"JetBrains Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
+  .info-card .val{font-weight:500;font-size:1.05rem}
+  .info-card .note{color:var(--ink-3);font-size:var(--t-small)}
+  .form-card{padding:34px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:.78rem;font-weight:500;color:var(--ink-2);margin-bottom:6px}
+  .field input,.field textarea{width:100%;padding:13px 16px;border-radius:var(--r-sm);
+    border:1px solid var(--glass-stroke);background:rgba(255,255,255,.55);font-family:"Satoshi";font-size:.95rem;color:var(--ink);
+    transition:border .3s var(--ease),box-shadow .3s var(--ease);outline:none}
+  .field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(45,107,255,.15)}
+  .field textarea{resize:vertical;min-height:96px}
+  .ok-msg{display:none;margin-top:14px;padding:14px 18px;border-radius:var(--r-sm);font-weight:500;font-size:.9rem;
+    background:rgba(31,217,166,.18);color:#0a7a5c;border:1px solid rgba(31,217,166,.4)}
+  .ok-msg.show{display:block;animation:rise .5s var(--ease)}
+
+  footer{padding:50px 0 70px;text-align:center;color:var(--ink-3);font-size:var(--t-small)}
+</style>
+</head>
+<body>
+
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span></div>
+<div class="grain"></div>
+
+<nav>
+  <span class="logo">DIM<b>AGIN</b></span>
+  <button class="nav-link on" data-go="home">Accueil</button>
+  <button class="nav-link" data-go="work">Réalisations</button>
+  <button class="nav-link" data-go="contact">Contact</button>
+</nav>
+
+<main>
+
+<!-- ===================== HOME ===================== -->
+<div class="page active" id="home">
+  <section class="wrap hero">
+    <div class="floaties"><div class="floaty f1"></div><div class="floaty f2"></div><div class="floaty f3"></div></div>
+    <span class="badge glass stg"><span class="dot"></span>Agence web & mobile · Chicago</span>
+    <h1 class="stg">Le complexe,<br>rendu <span class="grad">simple.</span></h1>
+    <p class="lede stg">DIMAGIN est un collectif créatif qui transforme les problèmes complexes en produits digitaux clairs, intuitifs et élégants.</p>
+    <div class="cta stg">
+      <button class="btn btn-primary" data-go="contact">Démarrer un projet</button>
+      <button class="btn btn-glass" data-go="work">Voir nos réalisations →</button>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <p class="eyebrow stg">Ce qu'on fait</p>
+    <h2 class="sec-title stg">Trois expertises, un produit cohérent</h2>
+    <div class="feat-grid" style="margin-top:30px">
+      <div class="feat glass stg">
+        <div class="ic" style="background:linear-gradient(135deg,var(--blue),#4D8BFF)">◆</div>
+        <h3>Product Design</h3>
+        <p>UX research, parcours, wireframes et prototypes testés auprès de vrais utilisateurs.</p>
+      </div>
+      <div class="feat glass stg">
+        <div class="ic" style="background:linear-gradient(135deg,var(--mint),#5FE9C4)">❖</div>
+        <h3>Interface & Design System</h3>
+        <p>Des composants réutilisables, accessibles et documentés pour scaler le produit.</p>
+      </div>
+      <div class="feat glass stg">
+        <div class="ic" style="background:linear-gradient(135deg,var(--coral),var(--gold))">◈</div>
+        <h3>Web & Mobile</h3>
+        <p>De la maquette au front livré : sites, apps et MVP performants.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="cta-band glass stg">
+      <h2>On construit ton prochain produit ?</h2>
+      <p>Parle-nous de ton projet — on revient vers toi sous 24 h avec une première piste.</p>
+      <button class="btn btn-primary" data-go="contact">Get in touch →</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== WORK ===================== -->
+<div class="page" id="work">
+  <section class="wrap" style="padding-bottom:20px">
+    <p class="eyebrow stg">Réalisations</p>
+    <h2 class="sec-title stg">Une sélection de projets</h2>
+    <p class="sec-sub stg">Du SaaS B2B au commerce mobile — chaque projet part d'une question business et finit en interface qu'on adore utiliser.</p>
+  </section>
+  <section class="wrap" style="padding-top:0">
+    <div class="work-grid">
+      <div class="proj glass stg">
+        <div class="thumb"><div class="blob"><svg viewBox="0 0 520 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2D6BFF"/><stop offset="1" stop-color="#1FD9A6"/></linearGradient></defs>
+          <rect width="520" height="200" fill="url(#bg1)"/>
+          <rect x="44" y="38" width="432" height="126" rx="18" fill="#fff" opacity="0.93"/>
+          <rect x="64" y="58" width="78" height="11" rx="5.5" fill="#0C1222" opacity="0.16"/>
+          <rect x="396" y="54" width="60" height="19" rx="9.5" fill="#1FD9A6" opacity="0.3"/>
+          <text x="406" y="67" font-family="JetBrains Mono,monospace" font-size="10" fill="#0a7a5c">+18%</text>
+          <g fill="#2D6BFF"><rect x="66" y="120" width="15" height="24" rx="4"/><rect x="89" y="108" width="15" height="36" rx="4"/><rect x="112" y="94" width="15" height="50" rx="4"/><rect x="135" y="102" width="15" height="42" rx="4"/><rect x="158" y="82" width="15" height="62" rx="4"/></g>
+          <polyline points="252,130 292,114 332,120 372,94 412,100 452,74" fill="none" stroke="#1FD9A6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="452" cy="74" r="5" fill="#1FD9A6"/>
+        </svg></div><span class="tagdot">Fintech · SaaS</span></div>
+        <div class="body"><h3>Northwind Dashboard</h3><p>Refonte d'un outil de pilotage financier, −40 % de temps de tâche.</p><span class="arrow">Voir le cas →</span></div>
+      </div>
+      <div class="proj glass stg">
+        <div class="thumb"><div class="blob"><svg viewBox="0 0 520 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5C8A"/><stop offset="1" stop-color="#FFC93C"/></linearGradient></defs>
+          <rect width="520" height="200" fill="url(#bg2)"/>
+          <rect x="338" y="46" width="120" height="150" rx="20" fill="#fff" opacity="0.5"/>
+          <rect x="62" y="24" width="128" height="176" rx="24" fill="#fff" opacity="0.96"/>
+          <rect x="104" y="36" width="44" height="7" rx="3.5" fill="#0C1222" opacity="0.15"/>
+          <rect x="78" y="56" width="44" height="44" rx="11" fill="#FF5C8A" opacity="0.32"/>
+          <rect x="130" y="56" width="44" height="44" rx="11" fill="#FFC93C" opacity="0.4"/>
+          <rect x="78" y="104" width="30" height="7" rx="3.5" fill="#0C1222" opacity="0.18"/>
+          <rect x="130" y="104" width="30" height="7" rx="3.5" fill="#0C1222" opacity="0.18"/>
+          <rect x="78" y="160" width="96" height="26" rx="13" fill="#FF5C8A"/>
+          <circle cx="96" cy="173" r="5" fill="#fff"/><rect x="106" y="170" width="50" height="6" rx="3" fill="#fff"/>
+          <rect x="356" y="64" width="84" height="56" rx="12" fill="#fff" opacity="0.9"/>
+          <rect x="368" y="78" width="34" height="6" rx="3" fill="#0C1222" opacity="0.18"/>
+          <rect x="368" y="92" width="50" height="6" rx="3" fill="#0C1222" opacity="0.12"/>
+          <circle cx="426" cy="104" r="9" fill="#FFC93C"/>
+        </svg></div><span class="tagdot">Retail · Mobile</span></div>
+        <div class="body"><h3>Maple & Co.</h3><p>App e-commerce mobile-first, +28 % de conversion checkout.</p><span class="arrow">Voir le cas →</span></div>
+      </div>
+      <div class="proj glass stg">
+        <div class="thumb"><div class="blob"><svg viewBox="0 0 520 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1FD9A6"/><stop offset="1" stop-color="#9CC4FF"/></linearGradient></defs>
+          <rect width="520" height="200" fill="url(#bg3)"/>
+          <rect x="56" y="34" width="408" height="132" rx="18" fill="#fff" opacity="0.94"/>
+          <circle cx="76" cy="52" r="4" fill="#FF5C8A" opacity="0.6"/><circle cx="90" cy="52" r="4" fill="#FFC93C" opacity="0.6"/><circle cx="104" cy="52" r="4" fill="#1FD9A6" opacity="0.6"/>
+          <rect x="74" y="70" width="132" height="80" rx="12" fill="#9CC4FF" opacity="0.45"/>
+          <circle cx="140" cy="100" r="16" fill="#fff"/><path d="M118 142 q22 -26 44 0" fill="#fff"/>
+          <polyline points="232,110 256,110 268,84 284,134 300,110 332,110" fill="none" stroke="#1FD9A6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="160" stroke-dashoffset="160"><animate attributeName="stroke-dashoffset" from="160" to="0" dur="2.2s" repeatCount="indefinite"/></polyline>
+          <rect x="232" y="128" width="200" height="24" rx="12" fill="#1FD9A6" opacity="0.16"/>
+          <path d="M250 140 l4 4 7 -8" stroke="#0a7a5c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="266" y="137" width="120" height="6" rx="3" fill="#0a7a5c" opacity="0.5"/>
+        </svg></div><span class="tagdot">Health · Web</span></div>
+        <div class="body"><h3>Caremint</h3><p>Plateforme de téléconsultation, design system complet.</p><span class="arrow">Voir le cas →</span></div>
+      </div>
+      <div class="proj glass stg">
+        <div class="thumb"><div class="blob"><svg viewBox="0 0 520 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2D6BFF"/><stop offset="1" stop-color="#7C5CFF"/></linearGradient></defs>
+          <rect width="520" height="200" fill="url(#bg4)"/>
+          <g transform="translate(260,100)">
+            <circle r="34" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.35"/>
+            <circle r="58" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.25"/>
+            <circle r="82" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.16"/>
+            <circle r="14" fill="#fff"/><circle r="6" fill="#7C5CFF"/>
+            <g><circle cx="34" cy="0" r="6" fill="#1FD9A6"/><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="9s" repeatCount="indefinite"/></g>
+            <g><circle cx="-58" cy="0" r="5" fill="#FFC93C"/><animateTransform attributeName="transform" type="rotate" from="120" to="480" dur="14s" repeatCount="indefinite"/></g>
+            <g><circle cx="0" cy="82" r="5" fill="#FF5C8A"/><animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="18s" repeatCount="indefinite"/></g>
+          </g>
+          <rect x="364" y="150" width="92" height="10" rx="5" fill="#fff" opacity="0.4"/>
+          <rect x="364" y="166" width="58" height="8" rx="4" fill="#fff" opacity="0.25"/>
+        </svg></div><span class="tagdot">B2B · Branding</span></div>
+        <div class="body"><h3>Orbit Labs</h3><p>Identité + site vitrine pour un studio d'IA.</p><span class="arrow">Voir le cas →</span></div>
+      </div>
+    </div>
+    <div class="outline-word">WORK</div>
+  </section>
+</div>
+
+<!-- ===================== CONTACT ===================== -->
+<div class="page" id="contact">
+  <section class="wrap">
+    <p class="eyebrow stg">Contact</p>
+    <h2 class="sec-title stg">Parlons de ton projet</h2>
+    <p class="sec-sub stg">On est là pour donner vie à ta vision. Écris-nous, on revient vers toi très vite.</p>
+    <div class="contact-grid">
+      <div class="info-card glass stg">
+        <div class="row"><div class="lab">Email</div><div class="val">projects@dimagin-collective.com</div></div>
+        <div class="row"><div class="lab">Téléphone (USA)</div><div class="val">+1 (312) 548-0198</div></div>
+        <div class="row"><div class="lab">Bureau</div><div class="val">215 W Ohio St, Chicago, IL 60654</div>
+          <div class="note">On adore le café — passe nous voir !</div></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:26px">
+          <button class="btn btn-primary">Book a Discovery Call</button>
+          <button class="btn btn-glass">Service Deck ↓</button>
+        </div>
+      </div>
+      <div class="form-card glass stg">
+        <div class="field"><label>Nom</label><input id="f-name" type="text" placeholder="Jane Doe"></div>
+        <div class="field"><label>Email</label><input id="f-mail" type="email" placeholder="jane@company.com"></div>
+        <div class="field"><label>Ton projet</label><textarea id="f-msg" placeholder="En quelques lignes…"></textarea></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" id="send">Envoyer →</button>
+        <div class="ok-msg" id="ok">Merci ! Message prêt à partir — (démo : aucune donnée n'est envoyée).</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+</main>
+
+<footer>DIMAGIN · Direction « Soft tech / glass » — concept portfolio</footer>
+
+<script>
+  const pages = document.querySelectorAll('.page');
+  const links = document.querySelectorAll('[data-go]');
+  function goTo(id){
+    pages.forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(n=>n.classList.toggle('on', n.dataset.go===id));
+    const target = document.getElementById(id);
+    // force reflow so the entrance animation replays
+    void target.offsetWidth;
+    target.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  links.forEach(l=>l.addEventListener('click',()=>goTo(l.dataset.go)));
+
+  // contact form (demo only — no network)
+  const send = document.getElementById('send');
+  send && send.addEventListener('click',()=>{
+    document.getElementById('ok').classList.add('show');
+    send.textContent = 'Envoyé ✓';
+    setTimeout(()=>{send.textContent='Envoyer →';},2500);
+  });
+</script>
+</body>
+</html>

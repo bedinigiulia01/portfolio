@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinap · Discover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --bg:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+  }
+  body{
+    font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 100% -10%, rgba(26,163,154,.10), transparent 60%),
+      radial-gradient(700px 500px at -5% 110%, rgba(14,27,42,.05), transparent 55%),
+      var(--bg);
+    min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  /* NAV */
+  nav{display:flex;align-items:center;gap:32px;padding:20px clamp(20px,5vw,56px);max-width:1240px;margin:0 auto}
+  .logo{font-family:'Sora';font-weight:800;font-size:23px;letter-spacing:-.02em}
+  .logo span{color:var(--teal)}
+  .nav-links{display:flex;gap:6px;margin-left:18px;flex:1}
+  .nav-links a{text-decoration:none;color:var(--ink-soft);font-weight:500;font-size:14.5px;padding:9px 16px;border-radius:999px;transition:.18s ease}
+  .nav-links a:hover{background:#fff;color:var(--ink)}
+  .nav-links a.active{background:var(--teal-tint);color:var(--teal-deep);font-weight:600}
+  .bell{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:.18s}
+  .bell:hover{transform:translateY(-1px)}
+  .bell::after{content:"";position:absolute;top:11px;right:12px;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+  @media(max-width:780px){.nav-links{display:none}}
+
+  /* HEADER */
+  .wrap{max-width:1240px;margin:0 auto;padding:8px clamp(20px,5vw,56px) 72px}
+  .head{margin:14px 0 26px;opacity:0;transform:translateY(14px);animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .head h1{font-family:'Sora';font-weight:700;font-size:clamp(28px,4vw,38px);letter-spacing:-.025em}
+  .head p{color:var(--muted);margin-top:8px;font-size:15px}
+
+  /* SEARCH */
+  .bar{display:flex;gap:12px;margin-bottom:36px;opacity:0;transform:translateY(14px);animation:rise .6s .08s cubic-bezier(.2,.7,.2,1) forwards}
+  .search{flex:1;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 18px;height:54px;transition:.2s}
+  .search:focus-within{border-color:var(--teal-tint-2);box-shadow:0 0 0 4px var(--teal-tint)}
+  .search svg{color:var(--muted);flex-shrink:0}
+  .search input{border:none;outline:none;font:500 15px 'Hanken Grotesk';color:var(--ink);width:100%;background:transparent}
+  .search input::placeholder{color:var(--muted)}
+  .filters{display:flex;align-items:center;gap:9px;background:var(--ink);color:#fff;border:none;border-radius:14px;padding:0 22px;height:54px;font:600 14.5px 'Hanken Grotesk';cursor:pointer;transition:.2s}
+  .filters:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(14,27,42,.5)}
+
+  /* GRID */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
+  .opp{
+    background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;
+    display:flex;flex-direction:column;
+    box-shadow:0 24px 50px -36px rgba(14,27,42,.28);
+    opacity:0;transform:translateY(20px);animation:rise .65s cubic-bezier(.2,.7,.2,1) forwards;
+    transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+  }
+  .opp:hover{transform:translateY(-6px);box-shadow:0 32px 60px -32px rgba(14,27,42,.34);border-color:var(--teal-tint-2)}
+  .opp:nth-child(1){animation-delay:.16s}
+  .opp:nth-child(2){animation-delay:.24s}
+  .opp:nth-child(3){animation-delay:.32s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* top row : photo + match + bookmark */
+  .opp-top{display:flex;align-items:center;gap:14px}
+  .avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--line);background:var(--teal-tint)}
+  .match{background:var(--ink);color:#fff;border-radius:999px;padding:7px 14px;font-family:'Sora';font-weight:700;font-size:13px}
+  .bookmark{margin-left:auto;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:.18s;border:1px solid transparent}
+  .bookmark:hover{color:var(--teal-deep);background:var(--teal-tint)}
+  .bookmark.on{color:var(--teal-deep)}
+
+  .opp-name{font-family:'Sora';font-weight:600;font-size:19px;letter-spacing:-.01em;margin-top:18px}
+  .spec{font-style:italic;color:var(--muted);font-size:13.5px;margin-top:5px}
+  .opp-desc{color:var(--ink-soft);font-size:13.5px;line-height:1.6;margin-top:14px}
+
+  .opp-meta{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  .opp-meta div{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft)}
+  .opp-meta svg{color:var(--teal);flex-shrink:0}
+  .opp-meta .star{color:#E8A93B}
+  .opp-meta .muted{color:var(--muted)}
+
+  .opp-foot{margin-top:22px}
+  .view{background:var(--ink);color:#fff;border:none;border-radius:999px;padding:12px 26px;font:600 14px 'Hanken Grotesk';cursor:pointer;transition:.2s}
+  .view:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(14,27,42,.55)}
+</style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">Kin<span>ap</span></div>
+    <div class="nav-links">
+      <a href="#">Dashboard</a>
+      <a href="#" class="active">Discover</a>
+      <a href="#">Messages</a>
+      <a href="#">Profile</a>
+    </div>
+    <div class="bell">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3A4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="head">
+      <h1>Découvrir des opportunités</h1>
+      <p>Des remplacements qui correspondent à votre spécialité et à vos disponibilités.</p>
+    </div>
+
+    <div class="bar">
+      <div class="search">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input placeholder="Rechercher par nom, ville ou spécialité…">
+      </div>
+      <button class="filters">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        Filtres
+      </button>
+    </div>
+
+    <div class="grid">
+
+      <!-- CARD 1 -->
+      <article class="opp">
+        <div class="opp-top">
+          <img class="avatar" src="https://images.unsplash.com/photo-1631248055158-edec7a3c072b?w=160&h=160&fit=crop&q=70" alt="Cabinet Médical Saint-Denis">
+          <span class="match">98% match</span>
+          <span class="bookmark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg></span>
+        </div>
+        <div class="opp-name">Cabinet Médical Saint-Denis</div>
+        <div class="spec">Pédiatrie</div>
+        <p class="opp-desc">Cabinet recherchant un(e) remplaçant(e) motivé(e) pour intégrer une structure dynamique et conviviale, dans un secteur agréable et accessible.</p>
+        <div class="opp-meta">
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Saint-Denis, Réunion</div>
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> Besoin : 10 – 30 juin 2026</div>
+          <div><svg class="star" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z"/></svg> 4.2 <span class="muted">(32 avis)</span></div>
+        </div>
+        <div class="opp-foot"><button class="view">Voir le profil</button></div>
+      </article>
+
+      <!-- CARD 2 -->
+      <article class="opp">
+        <div class="opp-top">
+          <img class="avatar" src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=160&h=160&fit=crop&q=70" alt="Clinique du Souffle">
+          <span class="match">92% match</span>
+          <span class="bookmark on"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg></span>
+        </div>
+        <div class="opp-name">Clinique du Souffle</div>
+        <div class="spec">Médecine générale</div>
+        <p class="opp-desc">Cabinet médical moderne recherchant régulièrement des remplacements en médecine générale, dans un cadre professionnel et bienveillant.</p>
+        <div class="opp-meta">
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Paris, Île-de-France</div>
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> Besoin : 12 – 23 juin 2026</div>
+          <div><svg class="star" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z"/></svg> 4.8 <span class="muted">(120 avis)</span></div>
+        </div>
+        <div class="opp-foot"><button class="view">Voir le profil</button></div>
+      </article>
+
+      <!-- CARD 3 -->
+      <article class="opp">
+        <div class="opp-top">
+          <img class="avatar" src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=160&h=160&fit=crop&q=70" alt="Cabinet Lyon Centre">
+          <span class="match">84% match</span>
+          <span class="bookmark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg></span>
+        </div>
+        <div class="opp-name">Cabinet Lyon Centre</div>
+        <div class="spec">Médecine générale</div>
+        <p class="opp-desc">Nous recherchons un(e) remplaçant(e) sérieux(se) et autonome pour assurer des remplacements dans une ambiance professionnelle et bienveillante.</p>
+        <div class="opp-meta">
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Lyon, Auvergne-Rhône-Alpes</div>
+          <div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> Besoin : 12 – 23 juin 2026</div>
+          <div><svg class="star" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z"/></svg> 4.8 <span class="muted">(120 avis)</span></div>
+        </div>
+        <div class="opp-foot"><button class="view">Voir le profil</button></div>
+      </article>
+
+    </div>
+  </div>
+
+</body>
+</html>

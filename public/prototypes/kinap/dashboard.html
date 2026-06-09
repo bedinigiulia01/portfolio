@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinap · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --bg:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+    --radius:18px;
+  }
+  html{font-size:16px}
+  body{
+    font-family:'Hanken Grotesk',sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 100% -10%, rgba(26,163,154,.10), transparent 60%),
+      radial-gradient(700px 500px at -5% 110%, rgba(14,27,42,.05), transparent 55%),
+      var(--bg);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex;align-items:center;gap:32px;
+    padding:20px clamp(20px,5vw,56px);
+    max-width:1280px;margin:0 auto;
+  }
+  .logo{font-family:'Sora';font-weight:800;font-size:23px;letter-spacing:-.02em;color:var(--ink)}
+  .logo span{color:var(--teal)}
+  .nav-links{display:flex;gap:6px;margin-left:18px;flex:1}
+  .nav-links a{
+    text-decoration:none;color:var(--ink-soft);font-weight:500;font-size:14.5px;
+    padding:9px 16px;border-radius:999px;transition:.18s ease;display:flex;align-items:center;gap:8px;
+  }
+  .nav-links a:hover{background:#fff;color:var(--ink)}
+  .nav-links a.active{background:var(--teal-tint);color:var(--teal-deep);font-weight:600}
+  .bell{
+    width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:.18s;
+  }
+  .bell:hover{transform:translateY(-1px)}
+  .bell::after{content:"";position:absolute;top:11px;right:12px;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{max-width:1280px;margin:0 auto;padding:8px clamp(20px,5vw,56px) 64px}
+  .layout{display:grid;grid-template-columns:1fr 360px;gap:26px;align-items:start}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}.nav-links{display:none}}
+
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:24px;
+    box-shadow:0 24px 50px -34px rgba(14,27,42,.30);
+    opacity:0;transform:translateY(18px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none}}
+  .col-main{animation-delay:.05s}
+
+  /* ---------- CALENDAR ---------- */
+  .cal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:30px 32px 4px}
+  .cal-head h1{font-family:'Sora';font-weight:700;font-size:27px;letter-spacing:-.02em}
+  .cal-head .sub{color:var(--muted);font-size:14px;margin-top:5px}
+  .add-btn{
+    background:var(--ink);color:#fff;border:none;border-radius:999px;
+    padding:11px 18px;font:600 14px 'Hanken Grotesk';display:flex;align-items:center;gap:8px;
+    cursor:pointer;transition:.2s ease;
+  }
+  .add-btn:hover{transform:translateY(-2px);box-shadow:0 12px 24px -10px rgba(14,27,42,.5)}
+  .add-btn svg{width:16px;height:16px}
+
+  .month-bar{display:flex;align-items:center;justify-content:center;gap:18px;padding:22px 32px 14px}
+  .month-bar .m{font-family:'Sora';font-weight:600;font-size:17px}
+  .arrow{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);transition:.18s}
+  .arrow:hover{background:var(--teal-tint);color:var(--teal-deep);border-color:var(--teal-tint-2)}
+
+  .grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:6px 32px 18px}
+  .dow{text-align:center;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);padding-bottom:4px}
+  .day{
+    aspect-ratio:1.15/1;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:14.5px;font-weight:500;color:var(--ink-soft);background:#fff;border:1px solid var(--line);
+    cursor:pointer;transition:transform .15s ease, background .15s ease;
+  }
+  .day:hover{transform:translateY(-2px)}
+  .day.empty{background:transparent;border:none;cursor:default}
+  .day.avail{background:var(--teal-tint);border-color:var(--teal-tint-2);color:var(--teal-deep);font-weight:600}
+  .day.booked{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+
+  .legend{display:flex;gap:22px;padding:4px 32px 28px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted)}
+  .chip{width:15px;height:15px;border-radius:5px;border:1px solid var(--line)}
+  .chip.avail{background:var(--teal-tint);border-color:var(--teal-tint-2)}
+  .chip.booked{background:var(--ink);border-color:var(--ink)}
+  .chip.free{background:#fff}
+
+  /* ---------- SIDEBAR ---------- */
+  .col-side{display:flex;flex-direction:column;gap:22px}
+  .col-side .panel{animation-delay:.16s}
+  .col-side .panel:nth-child(2){animation-delay:.26s}
+
+  .side-dark{background:var(--ink);border:none;color:#fff;padding:26px}
+  .side-dark h2{font-family:'Sora';font-weight:600;font-size:18px;margin-bottom:18px}
+  .up{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:15px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;transition:.2s;cursor:pointer}
+  .up:last-child{margin-bottom:0}
+  .up:hover{background:rgba(26,163,154,.18);border-color:rgba(26,163,154,.4)}
+  .up .t{font-weight:600;font-size:14.5px}
+  .up .d{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:3px}
+  .up .chev{color:var(--teal);font-size:18px}
+
+  .side-light{padding:24px 24px 12px}
+  .side-light h2{font-family:'Sora';font-weight:600;font-size:18px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+  .count{background:var(--teal-tint);color:var(--teal-deep);font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px}
+  .match{padding:16px 0;border-top:1px solid var(--line);display:flex;gap:14px}
+  .match:first-of-type{border-top:none}
+  .match .ph{width:44px;height:44px;border-radius:11px;background:var(--teal-tint);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--teal-deep);font-family:'Sora';font-weight:700;font-size:15px}
+  .match .body{flex:1;min-width:0}
+  .match .name{font-weight:600;font-size:14.5px}
+  .match .meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+  .match .pct{font-family:'Sora';font-weight:700;font-size:13px;color:var(--teal-deep);white-space:nowrap}
+
+  .foot{padding:10px 24px 22px}
+  .ghost{width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px 'Hanken Grotesk';color:var(--ink);cursor:pointer;transition:.18s}
+  .ghost:hover{background:var(--teal-tint);color:var(--teal-deep);border-color:var(--teal-tint-2)}
+</style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">Kin<span>ap</span></div>
+    <div class="nav-links">
+      <a href="#" class="active">◆ Dashboard</a>
+      <a href="#">Discover</a>
+      <a href="#">Messages</a>
+      <a href="#">Profile</a>
+    </div>
+    <div class="bell">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#3A4757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="layout">
+
+      <!-- MAIN : CALENDAR -->
+      <section class="panel col-main">
+        <div class="cal-head">
+          <div>
+            <h1>Vos disponibilités</h1>
+            <div class="sub">Bloquez vos dates, les structures verront vos créneaux ouverts.</div>
+          </div>
+          <button class="add-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Ajouter
+          </button>
+        </div>
+
+        <div class="month-bar">
+          <button class="arrow">‹</button>
+          <span class="m">Mai 2026</span>
+          <button class="arrow">›</button>
+        </div>
+
+        <div class="grid7">
+          <div class="dow">L</div><div class="dow">M</div><div class="dow">M</div><div class="dow">J</div><div class="dow">V</div><div class="dow">S</div><div class="dow">D</div>
+
+          <div class="day empty"></div><div class="day empty"></div><div class="day empty"></div>
+          <div class="day avail">1</div><div class="day avail">2</div><div class="day avail">3</div><div class="day avail">4</div>
+          <div class="day avail">5</div><div class="day avail">6</div><div class="day avail">7</div><div class="day avail">8</div><div class="day avail">9</div><div class="day avail">10</div><div class="day avail">11</div>
+          <div class="day avail">12</div><div class="day avail">13</div><div class="day avail">14</div><div class="day avail">15</div><div class="day avail">16</div><div class="day avail">17</div><div class="day avail">18</div>
+          <div class="day avail">19</div><div class="day avail">20</div><div class="day booked">21</div><div class="day booked">22</div><div class="day booked">23</div><div class="day">24</div><div class="day booked">25</div>
+          <div class="day booked">26</div><div class="day">27</div><div class="day">28</div><div class="day booked">29</div><div class="day">30</div><div class="day">31</div>
+        </div>
+
+        <div class="legend">
+          <span><i class="chip avail"></i> Disponible</span>
+          <span><i class="chip booked"></i> Remplacement confirmé</span>
+          <span><i class="chip free"></i> Libre</span>
+        </div>
+      </section>
+
+      <!-- SIDEBAR -->
+      <aside class="col-side">
+
+        <div class="panel side-dark">
+          <h2>À venir</h2>
+          <div class="up">
+            <div>
+              <div class="t">Cabinet Lyon Centre, Lyon</div>
+              <div class="d">11 – 20 mai 2026</div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="up">
+            <div>
+              <div class="t">Clinique du Souffle, Paris</div>
+              <div class="d">30 mai – 5 juin 2026</div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="side-light">
+            <h2>Suggestions <span class="count">3</span></h2>
+
+            <div class="match">
+              <div class="ph">CP</div>
+              <div class="body">
+                <div class="name">Clinique du Parc</div>
+                <div class="meta">Médecine générale · Lyon<br>12 – 23 juin 2026</div>
+              </div>
+              <div class="pct">94%</div>
+            </div>
+
+            <div class="match">
+              <div class="ph">SD</div>
+              <div class="body">
+                <div class="name">Cabinet Médical Saint-Denis</div>
+                <div class="meta">Pédiatrie · Saint-Denis, Réunion<br>10 – 30 juin 2026</div>
+              </div>
+              <div class="pct">98%</div>
+            </div>
+
+            <div class="match">
+              <div class="ph">CT</div>
+              <div class="body">
+                <div class="name">Centre Médical Tropical</div>
+                <div class="meta">Pédiatrie · Fort-de-France<br>13 – 25 juin 2026</div>
+              </div>
+              <div class="pct">84%</div>
+            </div>
+          </div>
+          <div class="foot">
+            <button class="ghost">Voir toutes les suggestions</button>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+</body>
+</html>

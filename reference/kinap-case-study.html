@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinap — Case study · Giulia Bedini</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Archivo:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f1ea;--ink:#1a1813;--muted:#6b6354;--line:#d8d2c4;
+  --num:#cfc7b6;--vert:#b3aa97;--accent:#b8593a;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:'Archivo',sans-serif;font-weight:400;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
+@media(pointer:coarse){body{cursor:auto}}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,5vw,72px)}
+
+.cursor{position:fixed;top:0;left:0;width:7px;height:7px;background:var(--ink);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .35s var(--ease),height .35s var(--ease),background .35s var(--ease)}
+.cursor.grow{width:46px;height:46px;background:rgba(26,24,19,.12)}
+@media(pointer:coarse){.cursor{display:none}}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;mix-blend-mode:multiply}
+nav .bar{display:flex;justify-content:space-between;align-items:center;padding:24px 0;transition:padding .4s var(--ease)}
+nav.scrolled .bar{padding:14px 0}
+nav .back{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.06em;display:flex;align-items:center;gap:9px}
+nav .back .ar{transition:transform .4s var(--ease)}
+nav .back:hover .ar{transform:translateX(-5px)}
+nav .lang{display:flex;gap:9px;font-family:'Space Mono',monospace;font-size:12px}
+nav .lang button{background:none;border:none;font:inherit;color:var(--vert);cursor:none;padding:0;transition:color .3s}
+nav .lang button.active{color:var(--ink);font-weight:700}
+nav .lang button:hover{color:var(--ink)}
+nav .lang .sep{color:var(--num)}
+
+.reveal{opacity:0;transform:translateY(26px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.mask{display:block;overflow:hidden}
+.mask>span{display:block;transform:translateY(110%);transition:transform 1.1s var(--ease)}
+.mask.in>span{transform:none}
+
+header.hero{padding-top:clamp(120px,16vh,170px)}
+.hero .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:14px;margin-bottom:30px}
+.hero .label::before{content:"";width:34px;height:1px;background:var(--muted)}
+.hero h1{font-family:'Fraunces';font-weight:330;font-size:clamp(58px,13vw,180px);line-height:.88;letter-spacing:-.035em}
+.hero h1 .dot{color:var(--accent)}
+.hero .tagline{font-family:'Fraunces';font-style:italic;font-weight:330;font-size:clamp(22px,3vw,38px);line-height:1.2;max-width:20ch;margin-top:34px;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;border-top:1px solid var(--line);padding-top:20px;margin-top:clamp(48px,7vw,90px)}
+@media(max-width:760px){.facts{grid-template-columns:repeat(2,1fr);gap:20px}}
+.facts div small{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--vert);display:block;margin-bottom:7px}
+.facts div b{font-family:'Fraunces';font-weight:400;font-size:17px}
+
+.sec-head{display:flex;align-items:baseline;gap:18px;margin:clamp(70px,11vw,140px) 0 clamp(30px,4vw,52px)}
+.sec-head .idx{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--vert)}
+.sec-head h2{font-family:'Fraunces';font-weight:340;font-size:clamp(26px,3.6vw,46px);letter-spacing:-.02em}
+.sec-head .rule{flex:1;height:1px;background:var(--line);align-self:center}
+
+.prose{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,80px)}
+@media(max-width:820px){.prose{grid-template-columns:1fr}}
+.prose .lead{font-family:'Fraunces';font-weight:330;font-size:clamp(22px,2.6vw,34px);line-height:1.28;letter-spacing:-.015em}
+.prose .lead em{font-style:italic;color:var(--muted)}
+.prose p{font-family:'Space Mono',monospace;font-size:12.5px;line-height:2;color:var(--muted);margin-bottom:20px}
+
+/* device showcase grid */
+.devices{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(34px,5vw,70px);margin-top:10px}
+@media(max-width:760px){.devices{grid-template-columns:1fr}}
+.device{position:relative}
+.device .cap{display:flex;gap:12px;margin-bottom:20px}
+.device .cap .pn{font-family:'Fraunces';font-style:italic;font-weight:300;font-size:30px;line-height:1;color:var(--num);flex-shrink:0}
+.device .cap .ct{padding-top:5px}
+.device .cap .ct .t{font-family:'Fraunces';font-weight:400;font-size:18px;letter-spacing:-.01em}
+.device .cap .ct .d{font-family:'Space Mono',monospace;font-size:11px;line-height:1.7;color:var(--muted);margin-top:5px;max-width:36ch}
+
+/* SMARTPHONE MOCKUP */
+.phone-mock{position:relative;width:clamp(260px,72vw,332px);margin:0 auto;background:#0d0f0e;border-radius:50px;padding:12px;
+  box-shadow:0 50px 100px -45px rgba(26,24,19,.55), 0 0 0 2px rgba(255,255,255,.05) inset, 0 1px 0 rgba(255,255,255,.08) inset}
+.phone-mock::before{content:"";position:absolute;top:26px;left:50%;transform:translateX(-50%);width:88px;height:24px;background:#0d0f0e;border-radius:20px;z-index:6;box-shadow:0 0 0 1px rgba(255,255,255,.04)}
+.phone-mock::after{content:"";position:absolute;right:-2px;top:140px;width:2px;height:58px;background:#1c201e;border-radius:2px}
+.phone-screen{position:relative;border-radius:39px;overflow:hidden;background:#F4F6F8;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.phone-screen iframe{display:block;width:100%;height:720px;border:0;background:#F4F6F8}
+
+/* desktop screens */
+.desktop-stack{display:flex;flex-direction:column;gap:clamp(40px,6vw,80px)}
+.browser{border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 34px 80px -44px rgba(26,24,19,.5);background:#fff}
+.browser .chrome{display:flex;align-items:center;gap:8px;padding:13px 18px;background:#ece8df;border-bottom:1px solid var(--line)}
+.browser .chrome i{width:11px;height:11px;border-radius:50%;background:#cfc7b6}
+.browser .chrome .url{margin-left:14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--vert)}
+.browser iframe{display:block;width:100%;height:660px;border:0;background:var(--paper)}
+.dcap{margin-bottom:18px}
+.dcap .t{font-family:'Fraunces';font-weight:400;font-size:clamp(20px,2.2vw,26px);letter-spacing:-.01em}
+.dcap .d{font-family:'Space Mono',monospace;font-size:12px;line-height:1.8;color:var(--muted);margin-top:8px;max-width:60ch}
+
+.hint{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.04em;color:var(--vert);margin-top:14px;display:flex;align-items:center;gap:8px}
+
+.next{margin-top:clamp(90px,13vw,180px);border-top:1px solid var(--line);padding-top:clamp(40px,5vw,70px);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px}
+.next .l small{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--vert)}
+.next .l a{font-family:'Fraunces';font-weight:330;font-size:clamp(34px,6vw,72px);letter-spacing:-.03em;display:inline-flex;align-items:center;gap:18px;margin-top:6px}
+.next .l a .dot{color:var(--accent)}
+.next .l a .ar{font-size:.5em;transition:transform .4s var(--ease)}
+.next .l a:hover .ar{transform:translateX(10px)}
+.next .home{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.06em;border-bottom:1px solid var(--ink);padding-bottom:5px}
+
+footer{margin-top:clamp(70px,9vw,120px);padding:36px 0;border-top:1px solid var(--line)}
+footer .frow{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+
+<nav id="nav"><div class="wrap"><div class="bar">
+  <a href="giulia-bedini-portfolio.html" class="back" data-link><span class="ar">←</span><span data-i18n="back">Back to work</span></a>
+  <div class="lang" id="lang">
+    <button data-lang="en" class="active" data-link>EN</button><span class="sep">·</span>
+    <button data-lang="fr" data-link>FR</button><span class="sep">·</span>
+    <button data-lang="it" data-link>IT</button>
+  </div>
+</div></div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="label"><span data-i18n="eyebrow">Case study — 02</span></div>
+  <h1><span class="mask"><span>kinap<span class="dot">.</span></span></span></h1>
+  <p class="tagline" data-i18n="tagline">Connecting healthcare professionals with the practices that need them.</p>
+  <div class="facts reveal">
+    <div><small data-i18n="f_role">Role</small><b data-i18n="v_role">UX & UI Design</b></div>
+    <div><small data-i18n="f_scope">Scope</small><b data-i18n="v_scope">Research → UI → Motion</b></div>
+    <div><small data-i18n="f_platform">Platform</small><b data-i18n="v_platform">Mobile app & web</b></div>
+    <div><small data-i18n="f_year">Year</small><b>2025</b></div>
+  </div>
+</div></header>
+
+<!-- OVERVIEW -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="idx">(01)</span><h2 data-i18n="s_overview">Overview</h2><span class="rule"></span></div>
+  <div class="prose">
+    <div class="reveal"><p class="lead" data-i18n="overview_lead">Kinap matches doctors and healthcare professionals with the clinics and practices looking for short-term <em>replacements</em> — locum work, made simple.</p></div>
+    <div class="reveal">
+      <p data-i18n="overview_p1">I designed the experience end to end: discovering matched opportunities, opening up availability, agreeing on dates by message, confirming a booking, and looking back on activity — across both a mobile app and a web dashboard.</p>
+      <p data-i18n="overview_p2">The teal-and-navy identity, the component library and the motion all came out of the same system, so the product feels calm and trustworthy at every step.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- CHALLENGE -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="idx">(02)</span><h2 data-i18n="s_challenge">The challenge</h2><span class="rule"></span></div>
+  <div class="prose">
+    <div class="reveal"><p class="lead" data-i18n="challenge_lead">Medical replacements are usually arranged through <em>word of mouth</em>, scattered calls and last-minute stress.</p></div>
+    <div class="reveal">
+      <p data-i18n="challenge_p1">The goal was to make finding and confirming a replacement feel as simple and reassuring as any modern booking — for two very different users: busy practitioners and understaffed facilities.</p>
+      <p data-i18n="challenge_p2">That meant designing trust signals (ratings, reviews, match scores), a low-friction way to agree on dates, and moments of relief when a booking finally lands.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- MOBILE FLOW -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="idx">(03)</span><h2 data-i18n="s_flow">The mobile flow</h2><span class="rule"></span></div>
+  <p class="hint reveal"><span>▶</span> <span data-i18n="hint_live">These are live prototypes — tap a screen to replay its animation.</span></p>
+  <div class="devices" style="margin-top:36px">
+
+    <div class="device reveal">
+      <div class="cap"><div class="pn">01</div><div class="ct"><div class="t" data-i18n="m1_t">Agreeing on dates</div><div class="d" data-i18n="m1_d">A familiar, low-friction chat where practitioner and practice settle the details. The message types itself out, then sends.</div></div></div>
+      <div class="phone-mock"><div class="phone-screen"><iframe loading="lazy" srcdoc="<!DOCTYPE html>
+<html lang=&quot;fr&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>Kinap · Messagerie</title>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin>
+<link href=&quot;https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot;>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --screen:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+    --online:#27C26B;
+    --amber:#E8A93B;
+  }
+  body{
+    font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+    background:#22242A;display:flex;justify-content:center;align-items:flex-start;
+    min-height:100vh;padding:28px 16px;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  .phone{
+    width:100%;max-width:412px;height:min(880px,94vh);
+    background:
+      radial-gradient(560px 360px at 100% -8%, rgba(26,163,154,.12), transparent 60%),
+      radial-gradient(460px 360px at -10% 108%, rgba(14,27,42,.05), transparent 55%),
+      var(--screen);
+    border-radius:42px;overflow:hidden;position:relative;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.6), 0 0 0 10px #0c0d10, 0 0 0 12px #2b2d33;
+    display:flex;flex-direction:column;
+  }
+
+  /* TOP BAR */
+  .topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 20px 6px}
+  .logo{font-family:'Sora';font-weight:800;font-size:21px;letter-spacing:-.02em}
+  .logo span{color:var(--teal)}
+  .bell{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
+  .bell::after{content:&quot;&quot;;position:absolute;top:10px;right:11px;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+
+  .mtitle{flex-shrink:0;font-family:'Sora';font-weight:700;font-size:27px;letter-spacing:-.02em;padding:6px 20px 12px}
+
+  /* SEARCH */
+  .search{flex-shrink:0;margin:0 20px 14px;display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 16px;height:46px}
+  .search svg{color:var(--muted)}
+  .search input{border:none;outline:none;background:transparent;font:500 14.5px 'Hanken Grotesk';color:var(--ink);width:100%}
+  .search input::placeholder{color:var(--muted)}
+
+  /* AVATARS ROW */
+  .people{flex-shrink:0;display:flex;gap:16px;padding:2px 20px 16px;overflow-x:auto;scrollbar-width:none}
+  .people::-webkit-scrollbar{display:none}
+  .person{flex:0 0 auto;position:relative;cursor:pointer}
+  .person img{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 6px 16px -8px rgba(14,27,42,.35)}
+  .person.sel{padding:3px;border:2px solid var(--teal);border-radius:50%}
+  .person.sel img{width:54px;height:54px}
+  .person .od{position:absolute;right:1px;bottom:1px;width:14px;height:14px;border-radius:50%;border:2.5px solid var(--screen)}
+  .person.sel .od{right:3px;bottom:3px}
+  .od.on{background:var(--online)} .od.busy{background:var(--amber)}
+
+  /* CONVERSATION CARD */
+  .card{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-top-left-radius:28px;border-top-right-radius:28px;margin:0 0 0 0;box-shadow:0 -10px 40px -28px rgba(14,27,42,.4)}
+  .conv-head{flex-shrink:0;display:flex;align-items:center;gap:12px;padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+  .conv-head .av{width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--line);cursor:pointer}
+  .conv-head .meta{flex:1;min-width:0}
+  .conv-head .nm{font-family:'Sora';font-weight:600;font-size:16px;letter-spacing:-.01em}
+  .conv-head .st{font-size:12px;color:var(--teal-deep);font-weight:600;margin-top:2px;display:flex;align-items:center;gap:6px}
+  .conv-head .st::before{content:&quot;&quot;;width:7px;height:7px;border-radius:50%;background:var(--online)}
+  .hbtn{width:40px;height:40px;border-radius:12px;background:var(--teal-tint);color:var(--teal-deep);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.18s;flex-shrink:0}
+  .hbtn:hover{background:var(--teal-tint-2);transform:translateY(-1px)}
+
+  /* THREAD */
+  .thread{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 8px;scrollbar-width:none;display:flex;flex-direction:column;gap:3px}
+  .thread::-webkit-scrollbar{display:none}
+
+  .msg{display:flex;margin-top:9px;max-width:84%;animation:pop .42s cubic-bezier(.2,.9,.3,1) both}
+  .msg.in{align-self:flex-start}
+  .msg.out{align-self:flex-end;flex-direction:row-reverse}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+  .wrap-b{display:flex;flex-direction:column}
+  .bubble{padding:11px 15px;font-size:14.5px;line-height:1.45}
+  .in .bubble{background:var(--teal-tint);color:var(--ink);border-radius:18px 18px 18px 5px}
+  .out .bubble{background:var(--ink);color:#fff;border-radius:18px 18px 5px 18px}
+  .time{font-size:10.5px;color:var(--muted);margin-top:4px;padding:0 6px}
+  .out .time{text-align:right}
+
+  .typing{display:flex;align-items:center;gap:4px;background:var(--teal-tint);border-radius:18px 18px 18px 5px;padding:13px 16px;align-self:flex-start;margin-top:9px;animation:pop .35s cubic-bezier(.2,.9,.3,1) both}
+  .typing i{width:7px;height:7px;border-radius:50%;background:var(--teal-deep);opacity:.5;animation:bounce 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.18s}
+  .typing i:nth-child(3){animation-delay:.36s}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+  /* COMPOSER */
+  .composer{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:12px 16px 12px;background:#fff;border-top:1px solid var(--line)}
+  .field{flex:1;display:flex;align-items:center;gap:10px;background:var(--screen);border:1px solid var(--line);border-radius:999px;padding:0 8px 0 16px;height:46px;overflow:hidden}
+  .field input{flex:1;border:none;outline:none;background:transparent;font:500 14.5px 'Hanken Grotesk';color:var(--ink);min-width:0}
+  .field input::placeholder{color:var(--muted)}
+  .clip{color:var(--muted);display:flex;cursor:pointer}
+  .field.active{border-color:var(--teal-tint-2);box-shadow:0 0 0 4px var(--teal-tint)}
+  .send{width:46px;height:46px;border-radius:50%;background:var(--ink);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;flex-shrink:0}
+  .send:hover{transform:translateY(-2px) rotate(8deg);box-shadow:0 12px 24px -10px rgba(14,27,42,.55)}
+  .send.sending{animation:sendPulse .55s cubic-bezier(.2,.8,.3,1)}
+  @keyframes sendPulse{0%{transform:scale(1) rotate(0)}35%{transform:scale(.78) rotate(-10deg)}62%{transform:scale(1.16) rotate(18deg);background:var(--teal-deep);box-shadow:0 14px 28px -8px rgba(14,139,130,.6)}100%{transform:scale(1) rotate(0)}}
+
+  /* BOTTOM NAV */
+  .tabbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-around;background:#fff;border-top:1px solid var(--line);padding:11px 14px 18px}
+  .tab{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:.2s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:var(--teal-tint);color:var(--teal-deep)}
+</style>
+</head>
+<body>
+  <div class=&quot;phone&quot;>
+
+    <div class=&quot;topbar&quot;>
+      <div class=&quot;logo&quot;>Kin<span>ap</span></div>
+      <div class=&quot;bell&quot;>
+        <svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#3A4757&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9&quot;/><path d=&quot;M13.73 21a2 2 0 0 1-3.46 0&quot;/></svg>
+      </div>
+    </div>
+
+    <div class=&quot;mtitle&quot;>Messages</div>
+
+    <div class=&quot;search&quot;>
+      <svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;7&quot;/><path d=&quot;m21 21-4.3-4.3&quot;/></svg>
+      <input placeholder=&quot;Rechercher…&quot;>
+    </div>
+
+    <div class=&quot;people&quot;>
+      <div class=&quot;person sel&quot; id=&quot;replay&quot; title=&quot;Rejouer la conversation&quot;>
+        <img src=&quot;https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=120&amp;h=120&amp;fit=crop&amp;q=70&quot; alt=&quot;&quot;>
+        <span class=&quot;od on&quot;></span>
+      </div>
+      <div class=&quot;person&quot;>
+        <img src=&quot;https://images.unsplash.com/photo-1631248055158-edec7a3c072b?w=120&amp;h=120&amp;fit=crop&amp;q=70&quot; alt=&quot;&quot;>
+        <span class=&quot;od busy&quot;></span>
+      </div>
+      <div class=&quot;person&quot;>
+        <img src=&quot;https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=120&amp;h=120&amp;fit=crop&amp;q=70&quot; alt=&quot;&quot;>
+        <span class=&quot;od busy&quot;></span>
+      </div>
+      <div class=&quot;person&quot;>
+        <img src=&quot;https://images.unsplash.com/photo-1758691463333-c79215e8bc3b?w=120&amp;h=120&amp;fit=crop&amp;crop=faces&amp;q=70&quot; alt=&quot;&quot;>
+        <span class=&quot;od on&quot;></span>
+      </div>
+    </div>
+
+    <div class=&quot;card&quot;>
+      <div class=&quot;conv-head&quot;>
+        <img class=&quot;av&quot; id=&quot;replay2&quot; src=&quot;https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=100&amp;h=100&amp;fit=crop&amp;q=70&quot; alt=&quot;Cabinet Lyon Centre&quot; title=&quot;Rejouer la conversation&quot;>
+        <div class=&quot;meta&quot;>
+          <div class=&quot;nm&quot;>Cabinet Lyon Centre</div>
+          <div class=&quot;st&quot;>En ligne</div>
+        </div>
+        <button class=&quot;hbtn&quot; title=&quot;Voir les disponibilités&quot;>
+          <svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg>
+        </button>
+        <button class=&quot;hbtn&quot; title=&quot;Voir le profil&quot;>
+          <svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;12&quot; cy=&quot;8&quot; r=&quot;4&quot;/><path d=&quot;M4 21c0-4 4-6 8-6s8 2 8 6&quot;/></svg>
+        </button>
+      </div>
+
+      <div class=&quot;thread&quot; id=&quot;thread&quot;></div>
+
+      <div class=&quot;composer&quot;>
+        <div class=&quot;field&quot; id=&quot;field&quot;>
+          <input id=&quot;composerInput&quot; placeholder=&quot;Écrire un message…&quot;>
+          <span class=&quot;clip&quot;><svg width=&quot;19&quot; height=&quot;19&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M21 11.5 12.5 20a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7L10 16.5a1.6 1.6 0 0 1-2.3-2.3l7.8-7.8&quot;/></svg></span>
+        </div>
+        <button class=&quot;send&quot; id=&quot;sendBtn&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M22 2 11 13M22 2l-7 20-4-9-9-4z&quot;/></svg></button>
+      </div>
+    </div>
+
+    <div class=&quot;tabbar&quot;>
+      <div class=&quot;tab&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M3 10.5 12 3l9 7.5&quot;/><path d=&quot;M5 9.5V21h14V9.5&quot;/></svg></div>
+      <div class=&quot;tab&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;7&quot;/><path d=&quot;m21 21-4.3-4.3&quot;/></svg></div>
+      <div class=&quot;tab active&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z&quot;/></svg></div>
+      <div class=&quot;tab&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;12&quot; cy=&quot;8&quot; r=&quot;4&quot;/><path d=&quot;M4 21c0-4 4-6 8-6s8 2 8 6&quot;/></svg></div>
+    </div>
+
+  </div>
+
+<script>
+  const thread = document.getElementById('thread');
+  const input = document.getElementById('composerInput');
+  const field = document.getElementById('field');
+  const sendBtn = document.getElementById('sendBtn');
+
+  const conversation = [
+    {side:'in',  time:'10:15', text:&quot;Bonjour Dr. Laurent, nous avons vu votre profil et serions intéressés pour un remplacement.&quot;},
+    {side:'out', time:'11:09', text:&quot;Bonjour, merci pour votre message, je suis disponible du 11 au 20 mai.&quot;},
+    {side:'in',  time:'11:25', text:&quot;Cela nous arrange. Pourriez-vous bloquer ces dates pour un remplacement dans notre établissement ?&quot;},
+    {side:'out', time:'11:43', text:&quot;Bien sûr, je vous envoie ma proposition de remplacement, vous n'aurez qu'à l'accepter.&quot;}
+  ];
+
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const scroll = () => thread.scrollTo({top:thread.scrollHeight, behavior:'smooth'});
+
+  function addBubble(side, text, time){
+    const msg = document.createElement('div');
+    msg.className = 'msg ' + side;
+    const w = document.createElement('div'); w.className = 'wrap-b';
+    const b = document.createElement('div'); b.className = 'bubble'; b.textContent = text;
+    const t = document.createElement('div'); t.className = 'time'; t.textContent = time;
+    w.appendChild(b); w.appendChild(t); msg.appendChild(w); thread.appendChild(msg);
+    scroll();
+  }
+
+  function typingIndicator(){
+    const el = document.createElement('div');
+    el.className = 'typing';
+    el.innerHTML = '<i></i><i></i><i></i>';
+    thread.appendChild(el); scroll();
+    return el;
+  }
+
+  // type our own message letter by letter in the bottom input, sliding to follow the end
+  async function typeInInput(text){
+    field.classList.add('active');
+    input.value = '';
+    for(let i=0;i<text.length;i++){
+      input.value += text[i];
+      input.scrollLeft = input.scrollWidth;     // slide so the end stays visible
+      const c = text[i];
+      let d = 34 + Math.random()*46;
+      if(c === ' ') d += 20;
+      if('.,?!'.includes(c)) d += 140;
+      await wait(d);
+    }
+    await wait(260);
+  }
+
+  async function pressSend(text, time){
+    sendBtn.classList.add('sending');
+    await wait(180);
+    input.value = '';
+    input.scrollLeft = 0;
+    field.classList.remove('active');
+    addBubble('out', text, time);
+    await wait(380);
+    sendBtn.classList.remove('sending');
+  }
+
+  let playing = false;
+  async function play(){
+    if(playing) return; playing = true;
+    thread.querySelectorAll('.msg, .typing').forEach(n => n.remove());
+    input.value = ''; field.classList.remove('active');
+    await wait(550);
+    for(const m of conversation){
+      if(m.side === 'in'){
+        const ind = typingIndicator();
+        await wait(1200 + Math.random()*500);
+        ind.remove();
+        addBubble('in', m.text, m.time);
+        await wait(700);
+      } else {
+        await typeInInput(m.text);
+        await pressSend(m.text, m.time);
+        await wait(550);
+      }
+    }
+    playing = false;
+  }
+
+  document.getElementById('replay').addEventListener('click', play);
+  document.getElementById('replay2').addEventListener('click', play);
+  window.addEventListener('load', () => setTimeout(play, 350));
+</script>
+
+<style id=&quot;cs-embed-fill&quot;>
+  html,body{background:#F4F6F8!important;padding:0!important;margin:0!important;display:block!important;min-height:100%!important}
+  .phone{max-width:none!important;width:100%!important;height:100vh!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</body>
+</html>
+"></iframe></div></div>
+    </div>
+
+    <div class="device reveal">
+      <div class="cap"><div class="pn">02</div><div class="ct"><div class="t" data-i18n="m2_t">Booking confirmed</div><div class="d" data-i18n="m2_d">The reassuring payoff — a celebratory confirmation that recaps the essentials at a glance.</div></div></div>
+      <div class="phone-mock"><div class="phone-screen"><iframe loading="lazy" srcdoc="<!DOCTYPE html>
+<html lang=&quot;fr&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>Kinap · Remplacement confirmé</title>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin>
+<link href=&quot;https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot;>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --screen:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+    --amber:#E8A93B;
+  }
+  body{
+    font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+    background:#22242A;display:flex;justify-content:center;align-items:flex-start;
+    min-height:100vh;padding:28px 16px;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  .phone{
+    width:100%;max-width:412px;height:min(880px,94vh);
+    background:
+      radial-gradient(620px 420px at 50% -6%, rgba(26,163,154,.16), transparent 62%),
+      radial-gradient(460px 360px at -10% 110%, rgba(14,27,42,.05), transparent 55%),
+      var(--screen);
+    border-radius:42px;overflow:hidden;position:relative;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.6), 0 0 0 10px #0c0d10, 0 0 0 12px #2b2d33;
+    display:flex;flex-direction:column;
+  }
+
+  .topbar{flex-shrink:0;display:flex;justify-content:flex-end;padding:18px 22px 0}
+  .close{width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);cursor:pointer;transition:.2s}
+  .close:hover{background:var(--teal-tint);color:var(--teal-deep)}
+
+  .scroll{flex:1;overflow-y:auto;padding:4px 24px 28px;scrollbar-width:none;display:flex;flex-direction:column}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* CELEBRATION */
+  .hero{text-align:center;padding:14px 0 4px;position:relative}
+  .check-wrap{position:relative;width:128px;height:128px;margin:0 auto 6px}
+  .ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--teal);opacity:0;transform:scale(.6)}
+  .ring.r1{animation:ping 1.1s .25s cubic-bezier(.2,.7,.2,1) forwards}
+  .ring.r2{animation:ping 1.1s .42s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes ping{0%{opacity:.55;transform:scale(.6)}100%{opacity:0;transform:scale(1.5)}}
+  .check{
+    position:absolute;inset:0;border-radius:50%;
+    background:linear-gradient(160deg,#22B9AE,#0E8B82);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 20px 44px -16px rgba(14,139,130,.6);
+    transform:scale(0);animation:pop .6s .15s cubic-bezier(.2,1.3,.4,1) forwards;
+  }
+  @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+  .check svg{width:62px;height:62px}
+  .check path{fill:none;stroke:#fff;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:48;stroke-dashoffset:48;animation:draw .5s .55s ease forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  .hero h1{font-family:'Sora';font-weight:700;font-size:26px;letter-spacing:-.02em;margin-top:14px;
+    opacity:0;transform:translateY(10px);animation:rise .6s .55s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero p{color:var(--ink-soft);font-size:15px;line-height:1.55;margin-top:9px;max-width:300px;margin-left:auto;margin-right:auto;
+    opacity:0;transform:translateY(10px);animation:rise .6s .63s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero p b{color:var(--ink);font-weight:600}
+
+  /* confetti */
+  .confetti{position:absolute;top:54px;left:50%;width:0;height:0;pointer-events:none}
+  .confetti i{position:absolute;width:8px;height:8px;border-radius:2px;opacity:0}
+
+  /* RECAP CARD */
+  .recap{background:#fff;border:1px solid var(--line);border-radius:24px;padding:6px;margin-top:24px;
+    box-shadow:0 24px 50px -38px rgba(14,27,42,.4);
+    opacity:0;transform:translateY(18px);animation:rise .65s .8s cubic-bezier(.2,.7,.2,1) forwards}
+  .r-head{display:flex;align-items:center;gap:14px;padding:18px}
+  .r-head img{width:54px;height:54px;border-radius:14px;object-fit:cover;border:1px solid var(--line)}
+  .r-head .n{font-family:'Sora';font-weight:600;font-size:17px;letter-spacing:-.01em}
+  .r-head .s{font-size:13px;color:var(--muted);margin-top:3px}
+  .r-badge{margin-left:auto;background:var(--teal-tint);color:var(--teal-deep);font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px}
+
+  .r-rows{border-top:1px solid var(--line);padding:6px 18px 10px}
+  .row{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:none}
+  .row .ic{width:34px;height:34px;border-radius:10px;background:var(--teal-tint);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .row .k{font-size:12px;color:var(--muted)}
+  .row .v{font-size:14.5px;font-weight:600;margin-top:1px}
+
+  .note{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:16px;color:var(--teal-deep);font-size:13px;font-weight:500;
+    opacity:0;animation:rise .6s .92s cubic-bezier(.2,.7,.2,1) forwards}
+
+  /* CTA */
+  .cta{margin-top:auto;padding-top:20px;display:flex;flex-direction:column;gap:11px;
+    opacity:0;animation:rise .6s 1s cubic-bezier(.2,.7,.2,1) forwards}
+  .btn{height:54px;border-radius:16px;border:none;font:600 15px 'Hanken Grotesk';cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:.2s}
+  .btn-fill{background:var(--ink);color:#fff}
+  .btn-fill:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(14,27,42,.55)}
+  .btn-out{background:#fff;border:1.5px solid var(--ink);color:var(--ink)}
+  .btn-out:hover{background:var(--teal-tint);border-color:var(--teal-tint-2);color:var(--teal-deep)}
+
+  @keyframes rise{to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+  <div class=&quot;phone&quot;>
+
+    <div class=&quot;topbar&quot;>
+      <div class=&quot;close&quot;><svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.4&quot; stroke-linecap=&quot;round&quot;><path d=&quot;M18 6 6 18M6 6l12 12&quot;/></svg></div>
+    </div>
+
+    <div class=&quot;scroll&quot;>
+
+      <!-- CELEBRATION -->
+      <div class=&quot;hero&quot;>
+        <div class=&quot;confetti&quot; id=&quot;confetti&quot;></div>
+        <div class=&quot;check-wrap&quot;>
+          <span class=&quot;ring r1&quot;></span>
+          <span class=&quot;ring r2&quot;></span>
+          <div class=&quot;check&quot;>
+            <svg viewBox=&quot;0 0 24 24&quot;><path d=&quot;M5 13l4 4L19 7&quot;/></svg>
+          </div>
+        </div>
+        <h1>Remplacement confirmé&amp;nbsp;!</h1>
+        <p>Tout est calé avec <b>Clinique du Souffle</b>. Le cabinet vient d'être prévenu, et la mission est ajoutée à votre planning.</p>
+      </div>
+
+      <!-- RECAP CARD -->
+      <div class=&quot;recap&quot;>
+        <div class=&quot;r-head&quot;>
+          <img src=&quot;https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=120&amp;h=120&amp;fit=crop&amp;q=70&quot; alt=&quot;Clinique du Souffle&quot;>
+          <div>
+            <div class=&quot;n&quot;>Clinique du Souffle</div>
+            <div class=&quot;s&quot;>Médecine générale · Paris</div>
+          </div>
+          <span class=&quot;r-badge&quot;>92% match</span>
+        </div>
+        <div class=&quot;r-rows&quot;>
+          <div class=&quot;row&quot;>
+            <span class=&quot;ic&quot;><svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></span>
+            <div><div class=&quot;k&quot;>Dates</div><div class=&quot;v&quot;>30 mai – 5 juin 2026 · 7 jours</div></div>
+          </div>
+          <div class=&quot;row&quot;>
+            <span class=&quot;ic&quot;><svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;9&quot;/><path d=&quot;M12 7v5l3 2&quot;/></svg></span>
+            <div><div class=&quot;k&quot;>Horaires</div><div class=&quot;v&quot;>9h00 – 18h00</div></div>
+          </div>
+          <div class=&quot;row&quot;>
+            <span class=&quot;ic&quot;><svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z&quot;/><circle cx=&quot;12&quot; cy=&quot;10&quot; r=&quot;2.5&quot;/></svg></span>
+            <div><div class=&quot;k&quot;>Adresse</div><div class=&quot;v&quot;>12 rue de la Santé, Paris 13e</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class=&quot;note&quot;>
+        <svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M20 6 9 17l-5-5&quot;/></svg>
+        Conditions acceptées par les deux parties
+      </div>
+
+      <!-- CTA -->
+      <div class=&quot;cta&quot;>
+        <button class=&quot;btn btn-fill&quot;>
+          <svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4M9 15l2 2 4-4&quot;/></svg>
+          Ajouter à mon planning
+        </button>
+        <button class=&quot;btn btn-out&quot;>
+          <svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z&quot;/></svg>
+          Envoyer un message au cabinet
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // sober confetti burst
+  window.addEventListener('load', () => {
+    const host = document.getElementById('confetti');
+    const colors = ['#1AA39A','#0E1B2A','#E8A93B','#D2ECE9'];
+    for(let i=0;i<16;i++){
+      const dot = document.createElement('i');
+      const angle = (Math.PI * 2 * i) / 16 + (Math.random()-.5)*0.4;
+      const dist = 70 + Math.random()*70;
+      const x = Math.cos(angle)*dist;
+      const y = Math.sin(angle)*dist - 10;
+      dot.style.background = colors[i % colors.length];
+      dot.style.transform = 'translate(0,0) scale(0)';
+      host.appendChild(dot);
+      const delay = 450 + Math.random()*120;
+      setTimeout(() => {
+        dot.animate([
+          {transform:'translate(0,0) scale(0)', opacity:1},
+          {transform:`translate(${x}px,${y}px) scale(1) rotate(${Math.random()*240}deg)`, opacity:1, offset:.7},
+          {transform:`translate(${x*1.1}px,${y+90}px) scale(.9) rotate(${Math.random()*360}deg)`, opacity:0}
+        ], {duration:1100, easing:'cubic-bezier(.2,.6,.3,1)', fill:'forwards'});
+      }, delay);
+    }
+  });
+</script>
+
+<style id=&quot;cs-embed-fill&quot;>
+  html,body{background:#F4F6F8!important;padding:0!important;margin:0!important;display:block!important;min-height:100%!important}
+  .phone{max-width:none!important;width:100%!important;height:100vh!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</body>
+</html>
+"></iframe></div></div>
+    </div>
+
+    <div class="device reveal">
+      <div class="cap"><div class="pn">03</div><div class="ct"><div class="t" data-i18n="m3_t">Monthly recap</div><div class="d" data-i18n="m3_d">Activity and ratings counted up into a simple summary that builds momentum and trust.</div></div></div>
+      <div class="phone-mock"><div class="phone-screen"><iframe loading="lazy" srcdoc="<!DOCTYPE html>
+<html lang=&quot;fr&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>Kinap · Récap du mois</title>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin>
+<link href=&quot;https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot;>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --screen:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+    --amber:#E8A93B;
+  }
+  body{
+    font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+    background:#22242A;display:flex;justify-content:center;align-items:flex-start;
+    min-height:100vh;padding:28px 16px;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  .phone{
+    width:100%;max-width:412px;height:min(880px,94vh);
+    background:
+      radial-gradient(560px 360px at 100% -8%, rgba(26,163,154,.12), transparent 60%),
+      radial-gradient(460px 360px at -10% 108%, rgba(14,27,42,.05), transparent 55%),
+      var(--screen);
+    border-radius:42px;overflow:hidden;position:relative;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.6), 0 0 0 10px #0c0d10, 0 0 0 12px #2b2d33;
+    display:flex;flex-direction:column;
+  }
+
+  .topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:18px 22px 8px}
+  .topbar .back{width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);cursor:pointer}
+  .topbar .ttl{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .topbar .sp{width:38px}
+
+  .scroll{flex:1;overflow-y:auto;padding:8px 20px 30px;scrollbar-width:none}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* HERO (dark celebratory surface) */
+  .hero{
+    background:linear-gradient(160deg,#13243A 0%,#0E1B2A 70%);
+    border-radius:26px;padding:26px 24px 22px;color:#fff;position:relative;overflow:hidden;
+    opacity:0;transform:translateY(16px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .hero::before{content:&quot;&quot;;position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(26,163,154,.35),transparent 65%)}
+  .hero .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:700;position:relative}
+  .hero .month{font-family:'Sora';font-weight:700;font-size:25px;margin-top:6px;letter-spacing:-.01em;position:relative}
+  .hero .sub{color:rgba(255,255,255,.72);font-size:14px;margin-top:8px;line-height:1.55;position:relative}
+  .hero .sub b{color:#fff}
+  /* pulse line — brand signature */
+  .pulse{margin-top:20px;position:relative}
+  .pulse svg{width:100%;height:40px;display:block}
+  .pulse path{fill:none;stroke:var(--teal);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.8s .5s ease forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  /* STAT TILES */
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:16px}
+  .tile{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;
+    opacity:0;transform:translateY(16px);animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards;
+    box-shadow:0 18px 40px -34px rgba(14,27,42,.4)}
+  .tile:nth-child(1){animation-delay:.15s}
+  .tile:nth-child(2){animation-delay:.23s}
+  .tile:nth-child(3){animation-delay:.31s}
+  .tile:nth-child(4){animation-delay:.39s}
+  .tile .ico{width:36px;height:36px;border-radius:11px;background:var(--teal-tint);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+  .tile .ico.amber{background:#FBF1DC;color:#C9881F}
+  .tile .num{font-family:'Sora';font-weight:700;font-size:30px;line-height:1;letter-spacing:-.02em}
+  .tile .num .star{color:var(--amber);font-size:18px}
+  .tile .cap{color:var(--muted);font-size:12.5px;line-height:1.4;margin-top:7px}
+
+  /* HIGHLIGHT */
+  .block{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;margin-top:13px;
+    opacity:0;transform:translateY(16px);animation:rise .6s .47s cubic-bezier(.2,.7,.2,1) forwards;
+    box-shadow:0 18px 40px -34px rgba(14,27,42,.4)}
+  .block .h{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-deep);font-weight:700}
+  .quote{font-family:'Sora';font-weight:500;font-size:16px;line-height:1.45;margin-top:10px;letter-spacing:-.01em}
+  .by{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+  .by .who{font-size:13px;color:var(--muted)}
+  .by .stars{color:var(--amber);font-size:13px;letter-spacing:1px}
+
+  /* REGIONS chips */
+  .block.reg{animation-delay:.53s}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chip{background:var(--teal-tint);color:var(--teal-deep);font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:7px}
+
+  /* CUMULATIVE banner */
+  .cum{display:flex;align-items:center;gap:14px;background:var(--ink);color:#fff;border-radius:20px;padding:18px 20px;margin-top:13px;
+    opacity:0;transform:translateY(16px);animation:rise .6s .59s cubic-bezier(.2,.7,.2,1) forwards}
+  .cum .big{font-family:'Sora';font-weight:700;font-size:32px;letter-spacing:-.02em;color:var(--teal)}
+  .cum .txt{font-size:13.5px;color:rgba(255,255,255,.78);line-height:1.45}
+  .cum .txt b{color:#fff}
+
+  /* CTA */
+  .cta{margin-top:18px;display:flex;gap:12px;
+    opacity:0;animation:rise .6s .67s cubic-bezier(.2,.7,.2,1) forwards}
+  .btn{flex:1;height:50px;border-radius:15px;border:none;font:600 14.5px 'Hanken Grotesk';cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:.2s}
+  .btn-out{background:#fff;border:1.5px solid var(--ink);color:var(--ink)}
+  .btn-out:hover{background:var(--teal-tint);border-color:var(--teal-tint-2);color:var(--teal-deep)}
+  .btn-fill{background:var(--ink);color:#fff}
+  .btn-fill:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(14,27,42,.55)}
+
+  @keyframes rise{to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+  <div class=&quot;phone&quot;>
+
+    <div class=&quot;topbar&quot;>
+      <div class=&quot;back&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;m15 18-6-6 6-6&quot;/></svg></div>
+      <div class=&quot;ttl&quot;>Votre récap</div>
+      <div class=&quot;sp&quot;></div>
+    </div>
+
+    <div class=&quot;scroll&quot;>
+
+      <!-- HERO -->
+      <div class=&quot;hero&quot;>
+        <div class=&quot;label&quot;>Mai 2026</div>
+        <div class=&quot;month&quot;>Beau mois, Dr. Laurent.</div>
+        <div class=&quot;sub&quot;>Vous avez assuré <b>3 remplacements</b> et gardé une note parfaite. Les cabinets adorent travailler avec vous.</div>
+        <div class=&quot;pulse&quot;>
+          <svg viewBox=&quot;0 0 320 40&quot; preserveAspectRatio=&quot;none&quot;>
+            <path d=&quot;M0 20 H80 l10 -14 l12 28 l10 -22 l9 8 H160 l10 -16 l12 30 l9 -22 l8 6 H320&quot;/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- TILES -->
+      <div class=&quot;tiles&quot;>
+        <div class=&quot;tile&quot;>
+          <div class=&quot;ico&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></div>
+          <div class=&quot;num&quot; data-target=&quot;3&quot;>0</div>
+          <div class=&quot;cap&quot;>Remplacements effectués</div>
+        </div>
+        <div class=&quot;tile&quot;>
+          <div class=&quot;ico amber&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;currentColor&quot;><path d=&quot;M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z&quot;/></svg></div>
+          <div class=&quot;num&quot;><span data-target=&quot;49&quot; data-decimal=&quot;1&quot;>0</span></div>
+          <div class=&quot;cap&quot;>Note moyenne du mois</div>
+        </div>
+        <div class=&quot;tile&quot;>
+          <div class=&quot;ico&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z&quot;/><circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;3&quot;/></svg></div>
+          <div class=&quot;num&quot; data-target=&quot;8&quot;>0</div>
+          <div class=&quot;cap&quot;>Cabinets ont vu votre profil</div>
+        </div>
+        <div class=&quot;tile&quot;>
+          <div class=&quot;ico&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;9&quot;/><path d=&quot;M12 7v5l3 2&quot;/></svg></div>
+          <div class=&quot;num&quot; data-target=&quot;12&quot;>0</div>
+          <div class=&quot;cap&quot;>Jours travaillés</div>
+        </div>
+      </div>
+
+      <!-- HIGHLIGHT -->
+      <div class=&quot;block&quot;>
+        <div class=&quot;h&quot;>Votre meilleur avis</div>
+        <div class=&quot;quote&quot;>« Excellente collaboration, un vrai professionnalisme. »</div>
+        <div class=&quot;by&quot;>
+          <span class=&quot;who&quot;>Cabinet Lyon Centre · 12 mai</span>
+          <span class=&quot;stars&quot;>★★★★★</span>
+        </div>
+      </div>
+
+      <!-- REGIONS -->
+      <div class=&quot;block reg&quot;>
+        <div class=&quot;h&quot;>Là où vous avez exercé</div>
+        <div class=&quot;chips&quot;>
+          <span class=&quot;chip&quot;><svg width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.4&quot;><path d=&quot;M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z&quot;/></svg> Île-de-France</span>
+          <span class=&quot;chip&quot;><svg width=&quot;12&quot; height=&quot;12&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.4&quot;><path d=&quot;M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z&quot;/></svg> Auvergne-Rhône-Alpes</span>
+        </div>
+      </div>
+
+      <!-- CUMULATIVE -->
+      <div class=&quot;cum&quot;>
+        <div class=&quot;big&quot; data-target=&quot;14&quot;>0</div>
+        <div class=&quot;txt&quot;><b>structures dépannées</b> depuis votre inscription. Merci d'être là quand on a besoin de vous.</div>
+      </div>
+
+      <!-- CTA -->
+      <div class=&quot;cta&quot;>
+        <button class=&quot;btn btn-out&quot;>
+          <svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><circle cx=&quot;18&quot; cy=&quot;5&quot; r=&quot;3&quot;/><circle cx=&quot;6&quot; cy=&quot;12&quot; r=&quot;3&quot;/><circle cx=&quot;18&quot; cy=&quot;19&quot; r=&quot;3&quot;/><path d=&quot;m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5&quot;/></svg>
+          Partager
+        </button>
+        <button class=&quot;btn btn-fill&quot;>Voir mon profil</button>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // count-up animation for stat numbers
+  function animateCount(el){
+    const target = parseFloat(el.dataset.target);
+    const dec = el.dataset.decimal ? parseInt(el.dataset.decimal) : 0;
+    const dur = 1100, start = performance.now();
+    function step(now){
+      const t = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      let val = target * eased;
+      el.textContent = dec ? (val/Math.pow(10,dec)).toFixed(dec) : Math.round(val);
+      if(t < 1) requestAnimationFrame(step);
+      else el.textContent = dec ? (target/Math.pow(10,dec)).toFixed(dec) : target;
+    }
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('load', () => {
+    setTimeout(() => document.querySelectorAll('[data-target]').forEach(animateCount), 450);
+  });
+</script>
+
+<style id=&quot;cs-embed-fill&quot;>
+  html,body{background:#F4F6F8!important;padding:0!important;margin:0!important;display:block!important;min-height:100%!important}
+  .phone{max-width:none!important;width:100%!important;height:100vh!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</body>
+</html>
+"></iframe></div></div>
+    </div>
+
+    <div class="device reveal">
+      <div class="cap"><div class="pn">04</div><div class="ct"><div class="t" data-i18n="m4_t">Professional profile</div><div class="d" data-i18n="m4_d">Experience, availability and reviews gathered in one trustworthy place.</div></div></div>
+      <div class="phone-mock"><div class="phone-screen"><iframe loading="lazy" srcdoc="<!DOCTYPE html>
+<html lang=&quot;fr&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>Kinap · Profile</title>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin>
+<link href=&quot;https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot;>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --screen:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+    --amber:#E8A93B;
+    --online:#27C26B;
+  }
+  body{
+    font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+    background:#22242A;
+    display:flex;justify-content:center;align-items:flex-start;
+    min-height:100vh;padding:28px 16px;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  /* PHONE FRAME */
+  .phone{
+    width:100%;max-width:412px;height:min(880px,94vh);
+    background:
+      radial-gradient(560px 360px at 100% -8%, rgba(26,163,154,.12), transparent 60%),
+      radial-gradient(460px 360px at -10% 108%, rgba(14,27,42,.05), transparent 55%),
+      var(--screen);
+    border-radius:42px;overflow:hidden;position:relative;
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.6), 0 0 0 10px #0c0d10, 0 0 0 12px #2b2d33;
+    display:flex;flex-direction:column;
+  }
+
+  /* HEADER */
+  .topbar{
+    flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+    padding:18px 22px 12px;background:transparent;z-index:5;
+  }
+  .logo{font-family:'Sora';font-weight:800;font-size:21px;letter-spacing:-.02em}
+  .logo span{color:var(--teal)}
+  .bell{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative}
+  .bell::after{content:&quot;&quot;;position:absolute;top:10px;right:11px;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+
+  /* SCROLL AREA */
+  .scroll{flex:1;overflow-y:auto;padding:6px 22px 30px;scrollbar-width:none}
+  .scroll::-webkit-scrollbar{display:none}
+
+  /* PROFILE HEAD */
+  .phead{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:8px;
+         opacity:0;transform:translateY(14px);animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .ph-wrap{position:relative;width:152px;height:152px;margin-bottom:18px}
+  .ph-img{width:152px;height:152px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 16px 34px -16px rgba(14,27,42,.4)}
+  .ph-add{position:absolute;right:6px;bottom:6px;width:42px;height:42px;border-radius:50%;background:var(--ink);color:#fff;border:3px solid var(--screen);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s}
+  .ph-add:hover{background:var(--teal-deep);transform:scale(1.06)}
+  .name{font-family:'Sora';font-weight:700;font-size:27px;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;justify-content:center}
+  .dot{width:11px;height:11px;border-radius:50%;background:var(--online);box-shadow:0 0 0 3px rgba(39,194,107,.18)}
+  .role{color:var(--teal-deep);font-weight:600;font-size:15.5px;margin-top:6px}
+  .loc{color:var(--muted);font-size:14px;margin-top:3px}
+
+  .stats{display:flex;gap:22px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+  .stats span{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600}
+  .stats .ico{width:24px;height:24px;border-radius:7px;background:var(--teal-tint);display:flex;align-items:center;justify-content:center;color:var(--teal-deep)}
+  .stats .star{color:var(--amber)}
+
+  /* ACTIONS */
+  .actions{display:flex;gap:12px;margin-top:22px;
+           opacity:0;transform:translateY(14px);animation:rise .6s .08s cubic-bezier(.2,.7,.2,1) forwards}
+  .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;height:52px;border-radius:15px;font:600 15px 'Hanken Grotesk';cursor:pointer;transition:.2s;border:none}
+  .btn-out{background:#fff;border:1.5px solid var(--ink);color:var(--ink)}
+  .btn-out:hover{background:var(--teal-tint);border-color:var(--teal-tint-2);color:var(--teal-deep)}
+  .btn-fill{background:var(--ink);color:#fff}
+  .btn-fill:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(14,27,42,.55)}
+
+  /* AVAILABILITY */
+  .sec-label{display:flex;align-items:center;justify-content:space-between;margin:30px 0 14px;
+             opacity:0;animation:rise .6s .14s cubic-bezier(.2,.7,.2,1) forwards}
+  .sec-label h2{font-family:'Sora';font-weight:600;font-size:17px}
+  .clinic-stack{display:flex}
+  .clinic-stack img{width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--screen);margin-left:-9px;background:var(--teal-tint)}
+  .clinic-stack img:first-child{margin-left:0}
+
+  .days{display:flex;gap:11px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;
+        opacity:0;animation:rise .6s .18s cubic-bezier(.2,.7,.2,1) forwards}
+  .days::-webkit-scrollbar{display:none}
+  .day{flex:0 0 auto;width:90px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center;transition:.2s;cursor:pointer}
+  .day:hover{transform:translateY(-3px);border-color:var(--teal-tint-2);box-shadow:0 12px 24px -14px rgba(14,27,42,.3)}
+  .day .cal{color:var(--teal);margin-bottom:8px}
+  .day .dow{font-size:11px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;font-weight:600}
+  .day .num{font-family:'Sora';font-weight:700;font-size:21px;margin-top:3px}
+
+  /* CARD : about / quals / reviews */
+  .card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;margin-top:22px;
+        box-shadow:0 24px 50px -40px rgba(14,27,42,.3);
+        opacity:0;transform:translateY(16px);animation:rise .65s .24s cubic-bezier(.2,.7,.2,1) forwards}
+  .card h3{font-family:'Sora';font-weight:600;font-size:17px;margin-bottom:12px}
+  .card h3:not(:first-child){margin-top:26px}
+  .card p{color:var(--ink-soft);font-size:14px;line-height:1.65}
+
+  .qual{display:flex;align-items:center;gap:13px;padding:9px 0;font-size:14px;font-weight:500}
+  .qual .medal{width:34px;height:34px;border-radius:10px;background:var(--teal-tint);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+  .review{padding:16px 0;border-top:1px solid var(--line)}
+  .review:first-of-type{border-top:none;padding-top:4px}
+  .review .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .review .who{font-family:'Sora';font-weight:600;font-size:14.5px}
+  .review .date{color:var(--muted);font-size:12px;margin-top:2px}
+  .review .stars{color:var(--amber);font-size:13px;letter-spacing:1px;white-space:nowrap}
+  .review .txt{color:var(--ink-soft);font-size:13.5px;line-height:1.6;margin-top:8px}
+
+  /* BOTTOM NAV */
+  .tabbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-around;
+          background:#fff;border-top:1px solid var(--line);padding:12px 14px 20px}
+  .tab{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:.2s}
+  .tab:hover{color:var(--ink)}
+  .tab.active{background:var(--teal-tint);color:var(--teal-deep)}
+  @keyframes rise{to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+  <div class=&quot;phone&quot;>
+
+    <div class=&quot;topbar&quot;>
+      <div class=&quot;logo&quot;>Kin<span>ap</span></div>
+      <div class=&quot;bell&quot;>
+        <svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#3A4757&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9&quot;/><path d=&quot;M13.73 21a2 2 0 0 1-3.46 0&quot;/></svg>
+      </div>
+    </div>
+
+    <div class=&quot;scroll&quot;>
+
+      <!-- PROFILE HEAD -->
+      <div class=&quot;phead&quot;>
+        <div class=&quot;ph-wrap&quot;>
+          <img class=&quot;ph-img&quot; src=&quot;https://images.unsplash.com/photo-1758691463333-c79215e8bc3b?w=400&amp;h=400&amp;fit=crop&amp;crop=faces&amp;q=72&quot; alt=&quot;Dr. Jean Laurent&quot;>
+          <div class=&quot;ph-add&quot;>
+            <svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.6&quot; stroke-linecap=&quot;round&quot;><path d=&quot;M12 5v14M5 12h14&quot;/></svg>
+          </div>
+        </div>
+        <div class=&quot;name&quot;>Dr. Jean Laurent <span class=&quot;dot&quot;></span></div>
+        <div class=&quot;role&quot;>Médecin généraliste</div>
+        <div class=&quot;loc&quot;>Paris, Île-de-France</div>
+
+        <div class=&quot;stats&quot;>
+          <span><span class=&quot;ico&quot;><svg width=&quot;13&quot; height=&quot;13&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.2&quot;><circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;9&quot;/><path d=&quot;M12 7v5l3 2&quot;/></svg></span> 7 ans d'expérience</span>
+          <span><svg class=&quot;star&quot; width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;currentColor&quot;><path d=&quot;M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z&quot;/></svg> 4.7 (3 avis)</span>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class=&quot;actions&quot;>
+        <button class=&quot;btn btn-out&quot;>
+          <svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg>
+          Planning
+        </button>
+        <button class=&quot;btn btn-fill&quot;>
+          <svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M22 2 11 13M22 2l-7 20-4-9-9-4z&quot;/></svg>
+          Message
+        </button>
+      </div>
+
+      <!-- AVAILABILITY -->
+      <div class=&quot;sec-label&quot;>
+        <h2>Disponibilités ce mois-ci</h2>
+        <div class=&quot;clinic-stack&quot;>
+          <img src=&quot;https://images.unsplash.com/photo-1631248055158-edec7a3c072b?w=80&amp;h=80&amp;fit=crop&amp;q=60&quot; alt=&quot;&quot;>
+          <img src=&quot;https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=80&amp;h=80&amp;fit=crop&amp;q=60&quot; alt=&quot;&quot;>
+          <img src=&quot;https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=80&amp;h=80&amp;fit=crop&amp;q=60&quot; alt=&quot;&quot;>
+        </div>
+      </div>
+      <div class=&quot;days&quot;>
+        <div class=&quot;day&quot;><div class=&quot;cal&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></div><div class=&quot;dow&quot;>Jeu</div><div class=&quot;num&quot;>21</div></div>
+        <div class=&quot;day&quot;><div class=&quot;cal&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></div><div class=&quot;dow&quot;>Ven</div><div class=&quot;num&quot;>22</div></div>
+        <div class=&quot;day&quot;><div class=&quot;cal&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></div><div class=&quot;dow&quot;>Sam</div><div class=&quot;num&quot;>23</div></div>
+        <div class=&quot;day&quot;><div class=&quot;cal&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></div><div class=&quot;dow&quot;>Lun</div><div class=&quot;num&quot;>25</div></div>
+        <div class=&quot;day&quot;><div class=&quot;cal&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></div><div class=&quot;dow&quot;>Mar</div><div class=&quot;num&quot;>26</div></div>
+        <div class=&quot;day&quot;><div class=&quot;cal&quot;><svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg></div><div class=&quot;dow&quot;>Ven</div><div class=&quot;num&quot;>29</div></div>
+      </div>
+
+      <!-- CARD -->
+      <div class=&quot;card&quot;>
+        <h3>À propos</h3>
+        <p>Médecin généraliste passionné avec 7 ans d'expérience, spécialisé en médecine familiale et pédiatrie. J'ai exercé dans des contextes variés, des cabinets urbains aux centres médicaux en zones rurales et en outre-mer.</p>
+
+        <h3>Qualifications</h3>
+        <div class=&quot;qual&quot;><span class=&quot;medal&quot;><svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><circle cx=&quot;12&quot; cy=&quot;9&quot; r=&quot;6&quot;/><path d=&quot;M9 14.5 7.5 22 12 19l4.5 3L15 14.5&quot;/></svg></span> Doctorat en médecine — Université Paris Descartes</div>
+        <div class=&quot;qual&quot;><span class=&quot;medal&quot;><svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><circle cx=&quot;12&quot; cy=&quot;9&quot; r=&quot;6&quot;/><path d=&quot;M9 14.5 7.5 22 12 19l4.5 3L15 14.5&quot;/></svg></span> Diplôme Interuniversitaire de Pédiatrie</div>
+        <div class=&quot;qual&quot;><span class=&quot;medal&quot;><svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><circle cx=&quot;12&quot; cy=&quot;9&quot; r=&quot;6&quot;/><path d=&quot;M9 14.5 7.5 22 12 19l4.5 3L15 14.5&quot;/></svg></span> Formation en Médecine Tropicale</div>
+
+        <h3>Avis</h3>
+        <div class=&quot;review&quot;>
+          <div class=&quot;top&quot;>
+            <div><div class=&quot;who&quot;>Cabinet Lyon Centre</div><div class=&quot;date&quot;>12 avril 2026</div></div>
+            <div class=&quot;stars&quot;>★★★★★</div>
+          </div>
+          <div class=&quot;txt&quot;>Excellente collaboration. Le Dr Laurent a fait preuve d'un grand professionnalisme et les patients étaient très satisfaits.</div>
+        </div>
+        <div class=&quot;review&quot;>
+          <div class=&quot;top&quot;>
+            <div><div class=&quot;who&quot;>Clinique Saint-Denis</div><div class=&quot;date&quot;>15 mars 2026</div></div>
+            <div class=&quot;stars&quot;>★★★★★</div>
+          </div>
+          <div class=&quot;txt&quot;>Très compétent et agréable. A su s'adapter rapidement à notre organisation.</div>
+        </div>
+        <div class=&quot;review&quot;>
+          <div class=&quot;top&quot;>
+            <div><div class=&quot;who&quot;>Centre Médical Marseille</div><div class=&quot;date&quot;>3 mars 2025</div></div>
+            <div class=&quot;stars&quot;>★★★★☆</div>
+          </div>
+          <div class=&quot;txt&quot;>Remplacement sérieux, ponctuel et bien préparé. Nous referons appel à lui.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class=&quot;tabbar&quot;>
+      <div class=&quot;tab&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M3 10.5 12 3l9 7.5&quot;/><path d=&quot;M5 9.5V21h14V9.5&quot;/></svg></div>
+      <div class=&quot;tab&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;7&quot;/><path d=&quot;m21 21-4.3-4.3&quot;/></svg></div>
+      <div class=&quot;tab&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z&quot;/></svg></div>
+      <div class=&quot;tab active&quot;><svg width=&quot;22&quot; height=&quot;22&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;12&quot; cy=&quot;8&quot; r=&quot;4&quot;/><path d=&quot;M4 21c0-4 4-6 8-6s8 2 8 6&quot;/></svg></div>
+    </div>
+
+  </div>
+
+<style id=&quot;cs-embed-fill&quot;>
+  html,body{background:#F4F6F8!important;padding:0!important;margin:0!important;display:block!important;min-height:100%!important}
+  .phone{max-width:none!important;width:100%!important;height:100vh!important;border-radius:0!important;box-shadow:none!important}
+</style>
+</body>
+</html>
+"></iframe></div></div>
+    </div>
+
+  </div>
+</div></section>
+
+<!-- DESKTOP -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="idx">(04)</span><h2 data-i18n="s_web">On the web</h2><span class="rule"></span></div>
+  <div class="desktop-stack">
+
+    <div class="reveal">
+      <div class="dcap"><div class="t" data-i18n="d1_t">Availability dashboard</div><div class="d" data-i18n="d1_d">Practitioners open up their calendar; facilities instantly see which days are free, booked or available.</div></div>
+      <div class="browser"><div class="chrome"><i></i><i></i><i></i><span class="url">kinap.app/dashboard</span></div><iframe loading="lazy" srcdoc="<!DOCTYPE html>
+<html lang=&quot;fr&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>Kinap · Dashboard</title>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin>
+<link href=&quot;https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot;>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --bg:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+    --radius:18px;
+  }
+  html{font-size:16px}
+  body{
+    font-family:'Hanken Grotesk',sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 100% -10%, rgba(26,163,154,.10), transparent 60%),
+      radial-gradient(700px 500px at -5% 110%, rgba(14,27,42,.05), transparent 55%),
+      var(--bg);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  /* ---------- NAV ---------- */
+  nav{
+    display:flex;align-items:center;gap:32px;
+    padding:20px clamp(20px,5vw,56px);
+    max-width:1280px;margin:0 auto;
+  }
+  .logo{font-family:'Sora';font-weight:800;font-size:23px;letter-spacing:-.02em;color:var(--ink)}
+  .logo span{color:var(--teal)}
+  .nav-links{display:flex;gap:6px;margin-left:18px;flex:1}
+  .nav-links a{
+    text-decoration:none;color:var(--ink-soft);font-weight:500;font-size:14.5px;
+    padding:9px 16px;border-radius:999px;transition:.18s ease;display:flex;align-items:center;gap:8px;
+  }
+  .nav-links a:hover{background:#fff;color:var(--ink)}
+  .nav-links a.active{background:var(--teal-tint);color:var(--teal-deep);font-weight:600}
+  .bell{
+    width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:.18s;
+  }
+  .bell:hover{transform:translateY(-1px)}
+  .bell::after{content:&quot;&quot;;position:absolute;top:11px;right:12px;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+
+  /* ---------- LAYOUT ---------- */
+  .wrap{max-width:1280px;margin:0 auto;padding:8px clamp(20px,5vw,56px) 64px}
+  .layout{display:grid;grid-template-columns:1fr 360px;gap:26px;align-items:start}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}.nav-links{display:none}}
+
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:24px;
+    box-shadow:0 24px 50px -34px rgba(14,27,42,.30);
+    opacity:0;transform:translateY(18px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none}}
+  .col-main{animation-delay:.05s}
+
+  /* ---------- CALENDAR ---------- */
+  .cal-head{display:flex;align-items:flex-start;justify-content:space-between;padding:30px 32px 4px}
+  .cal-head h1{font-family:'Sora';font-weight:700;font-size:27px;letter-spacing:-.02em}
+  .cal-head .sub{color:var(--muted);font-size:14px;margin-top:5px}
+  .add-btn{
+    background:var(--ink);color:#fff;border:none;border-radius:999px;
+    padding:11px 18px;font:600 14px 'Hanken Grotesk';display:flex;align-items:center;gap:8px;
+    cursor:pointer;transition:.2s ease;
+  }
+  .add-btn:hover{transform:translateY(-2px);box-shadow:0 12px 24px -10px rgba(14,27,42,.5)}
+  .add-btn svg{width:16px;height:16px}
+
+  .month-bar{display:flex;align-items:center;justify-content:center;gap:18px;padding:22px 32px 14px}
+  .month-bar .m{font-family:'Sora';font-weight:600;font-size:17px}
+  .arrow{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);transition:.18s}
+  .arrow:hover{background:var(--teal-tint);color:var(--teal-deep);border-color:var(--teal-tint-2)}
+
+  .grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:6px 32px 18px}
+  .dow{text-align:center;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);padding-bottom:4px}
+  .day{
+    aspect-ratio:1.15/1;border-radius:13px;display:flex;align-items:center;justify-content:center;
+    font-size:14.5px;font-weight:500;color:var(--ink-soft);background:#fff;border:1px solid var(--line);
+    cursor:pointer;transition:transform .15s ease, background .15s ease;
+  }
+  .day:hover{transform:translateY(-2px)}
+  .day.empty{background:transparent;border:none;cursor:default}
+  .day.avail{background:var(--teal-tint);border-color:var(--teal-tint-2);color:var(--teal-deep);font-weight:600}
+  .day.booked{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+
+  .legend{display:flex;gap:22px;padding:4px 32px 28px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted)}
+  .chip{width:15px;height:15px;border-radius:5px;border:1px solid var(--line)}
+  .chip.avail{background:var(--teal-tint);border-color:var(--teal-tint-2)}
+  .chip.booked{background:var(--ink);border-color:var(--ink)}
+  .chip.free{background:#fff}
+
+  /* ---------- SIDEBAR ---------- */
+  .col-side{display:flex;flex-direction:column;gap:22px}
+  .col-side .panel{animation-delay:.16s}
+  .col-side .panel:nth-child(2){animation-delay:.26s}
+
+  .side-dark{background:var(--ink);border:none;color:#fff;padding:26px}
+  .side-dark h2{font-family:'Sora';font-weight:600;font-size:18px;margin-bottom:18px}
+  .up{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:15px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;transition:.2s;cursor:pointer}
+  .up:last-child{margin-bottom:0}
+  .up:hover{background:rgba(26,163,154,.18);border-color:rgba(26,163,154,.4)}
+  .up .t{font-weight:600;font-size:14.5px}
+  .up .d{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:3px}
+  .up .chev{color:var(--teal);font-size:18px}
+
+  .side-light{padding:24px 24px 12px}
+  .side-light h2{font-family:'Sora';font-weight:600;font-size:18px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+  .count{background:var(--teal-tint);color:var(--teal-deep);font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px}
+  .match{padding:16px 0;border-top:1px solid var(--line);display:flex;gap:14px}
+  .match:first-of-type{border-top:none}
+  .match .ph{width:44px;height:44px;border-radius:11px;background:var(--teal-tint);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--teal-deep);font-family:'Sora';font-weight:700;font-size:15px}
+  .match .body{flex:1;min-width:0}
+  .match .name{font-weight:600;font-size:14.5px}
+  .match .meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+  .match .pct{font-family:'Sora';font-weight:700;font-size:13px;color:var(--teal-deep);white-space:nowrap}
+
+  .foot{padding:10px 24px 22px}
+  .ghost{width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px 'Hanken Grotesk';color:var(--ink);cursor:pointer;transition:.18s}
+  .ghost:hover{background:var(--teal-tint);color:var(--teal-deep);border-color:var(--teal-tint-2)}
+</style>
+</head>
+<body>
+
+  <nav>
+    <div class=&quot;logo&quot;>Kin<span>ap</span></div>
+    <div class=&quot;nav-links&quot;>
+      <a href=&quot;#&quot; class=&quot;active&quot;>◆ Dashboard</a>
+      <a href=&quot;#&quot;>Discover</a>
+      <a href=&quot;#&quot;>Messages</a>
+      <a href=&quot;#&quot;>Profile</a>
+    </div>
+    <div class=&quot;bell&quot;>
+      <svg width=&quot;19&quot; height=&quot;19&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#3A4757&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9&quot;/><path d=&quot;M13.73 21a2 2 0 0 1-3.46 0&quot;/></svg>
+    </div>
+  </nav>
+
+  <div class=&quot;wrap&quot;>
+    <div class=&quot;layout&quot;>
+
+      <!-- MAIN : CALENDAR -->
+      <section class=&quot;panel col-main&quot;>
+        <div class=&quot;cal-head&quot;>
+          <div>
+            <h1>Vos disponibilités</h1>
+            <div class=&quot;sub&quot;>Bloquez vos dates, les structures verront vos créneaux ouverts.</div>
+          </div>
+          <button class=&quot;add-btn&quot;>
+            <svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.4&quot; stroke-linecap=&quot;round&quot;><path d=&quot;M12 5v14M5 12h14&quot;/></svg>
+            Ajouter
+          </button>
+        </div>
+
+        <div class=&quot;month-bar&quot;>
+          <button class=&quot;arrow&quot;>‹</button>
+          <span class=&quot;m&quot;>Mai 2026</span>
+          <button class=&quot;arrow&quot;>›</button>
+        </div>
+
+        <div class=&quot;grid7&quot;>
+          <div class=&quot;dow&quot;>L</div><div class=&quot;dow&quot;>M</div><div class=&quot;dow&quot;>M</div><div class=&quot;dow&quot;>J</div><div class=&quot;dow&quot;>V</div><div class=&quot;dow&quot;>S</div><div class=&quot;dow&quot;>D</div>
+
+          <div class=&quot;day empty&quot;></div><div class=&quot;day empty&quot;></div><div class=&quot;day empty&quot;></div>
+          <div class=&quot;day avail&quot;>1</div><div class=&quot;day avail&quot;>2</div><div class=&quot;day avail&quot;>3</div><div class=&quot;day avail&quot;>4</div>
+          <div class=&quot;day avail&quot;>5</div><div class=&quot;day avail&quot;>6</div><div class=&quot;day avail&quot;>7</div><div class=&quot;day avail&quot;>8</div><div class=&quot;day avail&quot;>9</div><div class=&quot;day avail&quot;>10</div><div class=&quot;day avail&quot;>11</div>
+          <div class=&quot;day avail&quot;>12</div><div class=&quot;day avail&quot;>13</div><div class=&quot;day avail&quot;>14</div><div class=&quot;day avail&quot;>15</div><div class=&quot;day avail&quot;>16</div><div class=&quot;day avail&quot;>17</div><div class=&quot;day avail&quot;>18</div>
+          <div class=&quot;day avail&quot;>19</div><div class=&quot;day avail&quot;>20</div><div class=&quot;day booked&quot;>21</div><div class=&quot;day booked&quot;>22</div><div class=&quot;day booked&quot;>23</div><div class=&quot;day&quot;>24</div><div class=&quot;day booked&quot;>25</div>
+          <div class=&quot;day booked&quot;>26</div><div class=&quot;day&quot;>27</div><div class=&quot;day&quot;>28</div><div class=&quot;day booked&quot;>29</div><div class=&quot;day&quot;>30</div><div class=&quot;day&quot;>31</div>
+        </div>
+
+        <div class=&quot;legend&quot;>
+          <span><i class=&quot;chip avail&quot;></i> Disponible</span>
+          <span><i class=&quot;chip booked&quot;></i> Remplacement confirmé</span>
+          <span><i class=&quot;chip free&quot;></i> Libre</span>
+        </div>
+      </section>
+
+      <!-- SIDEBAR -->
+      <aside class=&quot;col-side&quot;>
+
+        <div class=&quot;panel side-dark&quot;>
+          <h2>À venir</h2>
+          <div class=&quot;up&quot;>
+            <div>
+              <div class=&quot;t&quot;>Cabinet Lyon Centre, Lyon</div>
+              <div class=&quot;d&quot;>11 – 20 mai 2026</div>
+            </div>
+            <span class=&quot;chev&quot;>›</span>
+          </div>
+          <div class=&quot;up&quot;>
+            <div>
+              <div class=&quot;t&quot;>Clinique du Souffle, Paris</div>
+              <div class=&quot;d&quot;>30 mai – 5 juin 2026</div>
+            </div>
+            <span class=&quot;chev&quot;>›</span>
+          </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+          <div class=&quot;side-light&quot;>
+            <h2>Suggestions <span class=&quot;count&quot;>3</span></h2>
+
+            <div class=&quot;match&quot;>
+              <div class=&quot;ph&quot;>CP</div>
+              <div class=&quot;body&quot;>
+                <div class=&quot;name&quot;>Clinique du Parc</div>
+                <div class=&quot;meta&quot;>Médecine générale · Lyon<br>12 – 23 juin 2026</div>
+              </div>
+              <div class=&quot;pct&quot;>94%</div>
+            </div>
+
+            <div class=&quot;match&quot;>
+              <div class=&quot;ph&quot;>SD</div>
+              <div class=&quot;body&quot;>
+                <div class=&quot;name&quot;>Cabinet Médical Saint-Denis</div>
+                <div class=&quot;meta&quot;>Pédiatrie · Saint-Denis, Réunion<br>10 – 30 juin 2026</div>
+              </div>
+              <div class=&quot;pct&quot;>98%</div>
+            </div>
+
+            <div class=&quot;match&quot;>
+              <div class=&quot;ph&quot;>CT</div>
+              <div class=&quot;body&quot;>
+                <div class=&quot;name&quot;>Centre Médical Tropical</div>
+                <div class=&quot;meta&quot;>Pédiatrie · Fort-de-France<br>13 – 25 juin 2026</div>
+              </div>
+              <div class=&quot;pct&quot;>84%</div>
+            </div>
+          </div>
+          <div class=&quot;foot&quot;>
+            <button class=&quot;ghost&quot;>Voir toutes les suggestions</button>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+</body>
+</html>
+"></iframe></div>
+    </div>
+
+    <div class="reveal">
+      <div class="dcap"><div class="t" data-i18n="d2_t">Discover opportunities</div><div class="d" data-i18n="d2_d">Matched replacements ranked by fit, location and dates — each with the trust signals that make a decision easy.</div></div>
+      <div class="browser"><div class="chrome"><i></i><i></i><i></i><span class="url">kinap.app/discover</span></div><iframe loading="lazy" srcdoc="<!DOCTYPE html>
+<html lang=&quot;fr&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>Kinap · Discover</title>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;>
+<link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin>
+<link href=&quot;https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&amp;display=swap&quot; rel=&quot;stylesheet&quot;>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --ink:#0E1B2A;
+    --ink-soft:#3A4757;
+    --teal:#1AA39A;
+    --teal-deep:#0E8B82;
+    --teal-tint:#E6F4F2;
+    --teal-tint-2:#D2ECE9;
+    --bg:#F4F6F8;
+    --card:#FFFFFF;
+    --line:#E6EDEC;
+    --muted:#7C8794;
+  }
+  body{
+    font-family:'Hanken Grotesk',sans-serif;color:var(--ink);
+    background:
+      radial-gradient(900px 500px at 100% -10%, rgba(26,163,154,.10), transparent 60%),
+      radial-gradient(700px 500px at -5% 110%, rgba(14,27,42,.05), transparent 55%),
+      var(--bg);
+    min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--teal-tint-2)}
+
+  /* NAV */
+  nav{display:flex;align-items:center;gap:32px;padding:20px clamp(20px,5vw,56px);max-width:1240px;margin:0 auto}
+  .logo{font-family:'Sora';font-weight:800;font-size:23px;letter-spacing:-.02em}
+  .logo span{color:var(--teal)}
+  .nav-links{display:flex;gap:6px;margin-left:18px;flex:1}
+  .nav-links a{text-decoration:none;color:var(--ink-soft);font-weight:500;font-size:14.5px;padding:9px 16px;border-radius:999px;transition:.18s ease}
+  .nav-links a:hover{background:#fff;color:var(--ink)}
+  .nav-links a.active{background:var(--teal-tint);color:var(--teal-deep);font-weight:600}
+  .bell{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:.18s}
+  .bell:hover{transform:translateY(-1px)}
+  .bell::after{content:&quot;&quot;;position:absolute;top:11px;right:12px;width:7px;height:7px;border-radius:50%;background:var(--teal)}
+  @media(max-width:780px){.nav-links{display:none}}
+
+  /* HEADER */
+  .wrap{max-width:1240px;margin:0 auto;padding:8px clamp(20px,5vw,56px) 72px}
+  .head{margin:14px 0 26px;opacity:0;transform:translateY(14px);animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .head h1{font-family:'Sora';font-weight:700;font-size:clamp(28px,4vw,38px);letter-spacing:-.025em}
+  .head p{color:var(--muted);margin-top:8px;font-size:15px}
+
+  /* SEARCH */
+  .bar{display:flex;gap:12px;margin-bottom:36px;opacity:0;transform:translateY(14px);animation:rise .6s .08s cubic-bezier(.2,.7,.2,1) forwards}
+  .search{flex:1;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:0 18px;height:54px;transition:.2s}
+  .search:focus-within{border-color:var(--teal-tint-2);box-shadow:0 0 0 4px var(--teal-tint)}
+  .search svg{color:var(--muted);flex-shrink:0}
+  .search input{border:none;outline:none;font:500 15px 'Hanken Grotesk';color:var(--ink);width:100%;background:transparent}
+  .search input::placeholder{color:var(--muted)}
+  .filters{display:flex;align-items:center;gap:9px;background:var(--ink);color:#fff;border:none;border-radius:14px;padding:0 22px;height:54px;font:600 14.5px 'Hanken Grotesk';cursor:pointer;transition:.2s}
+  .filters:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(14,27,42,.5)}
+
+  /* GRID */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px}
+  .opp{
+    background:var(--card);border:1px solid var(--line);border-radius:22px;padding:24px;
+    display:flex;flex-direction:column;
+    box-shadow:0 24px 50px -36px rgba(14,27,42,.28);
+    opacity:0;transform:translateY(20px);animation:rise .65s cubic-bezier(.2,.7,.2,1) forwards;
+    transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+  }
+  .opp:hover{transform:translateY(-6px);box-shadow:0 32px 60px -32px rgba(14,27,42,.34);border-color:var(--teal-tint-2)}
+  .opp:nth-child(1){animation-delay:.16s}
+  .opp:nth-child(2){animation-delay:.24s}
+  .opp:nth-child(3){animation-delay:.32s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* top row : photo + match + bookmark */
+  .opp-top{display:flex;align-items:center;gap:14px}
+  .avatar{width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid var(--line);background:var(--teal-tint)}
+  .match{background:var(--ink);color:#fff;border-radius:999px;padding:7px 14px;font-family:'Sora';font-weight:700;font-size:13px}
+  .bookmark{margin-left:auto;width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:.18s;border:1px solid transparent}
+  .bookmark:hover{color:var(--teal-deep);background:var(--teal-tint)}
+  .bookmark.on{color:var(--teal-deep)}
+
+  .opp-name{font-family:'Sora';font-weight:600;font-size:19px;letter-spacing:-.01em;margin-top:18px}
+  .spec{font-style:italic;color:var(--muted);font-size:13.5px;margin-top:5px}
+  .opp-desc{color:var(--ink-soft);font-size:13.5px;line-height:1.6;margin-top:14px}
+
+  .opp-meta{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  .opp-meta div{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft)}
+  .opp-meta svg{color:var(--teal);flex-shrink:0}
+  .opp-meta .star{color:#E8A93B}
+  .opp-meta .muted{color:var(--muted)}
+
+  .opp-foot{margin-top:22px}
+  .view{background:var(--ink);color:#fff;border:none;border-radius:999px;padding:12px 26px;font:600 14px 'Hanken Grotesk';cursor:pointer;transition:.2s}
+  .view:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(14,27,42,.55)}
+</style>
+</head>
+<body>
+
+  <nav>
+    <div class=&quot;logo&quot;>Kin<span>ap</span></div>
+    <div class=&quot;nav-links&quot;>
+      <a href=&quot;#&quot;>Dashboard</a>
+      <a href=&quot;#&quot; class=&quot;active&quot;>Discover</a>
+      <a href=&quot;#&quot;>Messages</a>
+      <a href=&quot;#&quot;>Profile</a>
+    </div>
+    <div class=&quot;bell&quot;>
+      <svg width=&quot;19&quot; height=&quot;19&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#3A4757&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><path d=&quot;M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9&quot;/><path d=&quot;M13.73 21a2 2 0 0 1-3.46 0&quot;/></svg>
+    </div>
+  </nav>
+
+  <div class=&quot;wrap&quot;>
+    <div class=&quot;head&quot;>
+      <h1>Découvrir des opportunités</h1>
+      <p>Des remplacements qui correspondent à votre spécialité et à vos disponibilités.</p>
+    </div>
+
+    <div class=&quot;bar&quot;>
+      <div class=&quot;search&quot;>
+        <svg width=&quot;19&quot; height=&quot;19&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot;><circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;7&quot;/><path d=&quot;m21 21-4.3-4.3&quot;/></svg>
+        <input placeholder=&quot;Rechercher par nom, ville ou spécialité…&quot;>
+      </div>
+      <button class=&quot;filters&quot;>
+        <svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.2&quot; stroke-linecap=&quot;round&quot;><path d=&quot;M4 6h16M7 12h10M10 18h4&quot;/></svg>
+        Filtres
+      </button>
+    </div>
+
+    <div class=&quot;grid&quot;>
+
+      <!-- CARD 1 -->
+      <article class=&quot;opp&quot;>
+        <div class=&quot;opp-top&quot;>
+          <img class=&quot;avatar&quot; src=&quot;https://images.unsplash.com/photo-1631248055158-edec7a3c072b?w=160&amp;h=160&amp;fit=crop&amp;q=70&quot; alt=&quot;Cabinet Médical Saint-Denis&quot;>
+          <span class=&quot;match&quot;>98% match</span>
+          <span class=&quot;bookmark&quot;><svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z&quot;/></svg></span>
+        </div>
+        <div class=&quot;opp-name&quot;>Cabinet Médical Saint-Denis</div>
+        <div class=&quot;spec&quot;>Pédiatrie</div>
+        <p class=&quot;opp-desc&quot;>Cabinet recherchant un(e) remplaçant(e) motivé(e) pour intégrer une structure dynamique et conviviale, dans un secteur agréable et accessible.</p>
+        <div class=&quot;opp-meta&quot;>
+          <div><svg width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z&quot;/><circle cx=&quot;12&quot; cy=&quot;10&quot; r=&quot;2.5&quot;/></svg> Saint-Denis, Réunion</div>
+          <div><svg width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg> Besoin : 10 – 30 juin 2026</div>
+          <div><svg class=&quot;star&quot; width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;currentColor&quot; stroke=&quot;none&quot;><path d=&quot;M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z&quot;/></svg> 4.2 <span class=&quot;muted&quot;>(32 avis)</span></div>
+        </div>
+        <div class=&quot;opp-foot&quot;><button class=&quot;view&quot;>Voir le profil</button></div>
+      </article>
+
+      <!-- CARD 2 -->
+      <article class=&quot;opp&quot;>
+        <div class=&quot;opp-top&quot;>
+          <img class=&quot;avatar&quot; src=&quot;https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=160&amp;h=160&amp;fit=crop&amp;q=70&quot; alt=&quot;Clinique du Souffle&quot;>
+          <span class=&quot;match&quot;>92% match</span>
+          <span class=&quot;bookmark on&quot;><svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;currentColor&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z&quot;/></svg></span>
+        </div>
+        <div class=&quot;opp-name&quot;>Clinique du Souffle</div>
+        <div class=&quot;spec&quot;>Médecine générale</div>
+        <p class=&quot;opp-desc&quot;>Cabinet médical moderne recherchant régulièrement des remplacements en médecine générale, dans un cadre professionnel et bienveillant.</p>
+        <div class=&quot;opp-meta&quot;>
+          <div><svg width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z&quot;/><circle cx=&quot;12&quot; cy=&quot;10&quot; r=&quot;2.5&quot;/></svg> Paris, Île-de-France</div>
+          <div><svg width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg> Besoin : 12 – 23 juin 2026</div>
+          <div><svg class=&quot;star&quot; width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;currentColor&quot; stroke=&quot;none&quot;><path d=&quot;M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z&quot;/></svg> 4.8 <span class=&quot;muted&quot;>(120 avis)</span></div>
+        </div>
+        <div class=&quot;opp-foot&quot;><button class=&quot;view&quot;>Voir le profil</button></div>
+      </article>
+
+      <!-- CARD 3 -->
+      <article class=&quot;opp&quot;>
+        <div class=&quot;opp-top&quot;>
+          <img class=&quot;avatar&quot; src=&quot;https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=160&amp;h=160&amp;fit=crop&amp;q=70&quot; alt=&quot;Cabinet Lyon Centre&quot;>
+          <span class=&quot;match&quot;>84% match</span>
+          <span class=&quot;bookmark&quot;><svg width=&quot;17&quot; height=&quot;17&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z&quot;/></svg></span>
+        </div>
+        <div class=&quot;opp-name&quot;>Cabinet Lyon Centre</div>
+        <div class=&quot;spec&quot;>Médecine générale</div>
+        <p class=&quot;opp-desc&quot;>Nous recherchons un(e) remplaçant(e) sérieux(se) et autonome pour assurer des remplacements dans une ambiance professionnelle et bienveillante.</p>
+        <div class=&quot;opp-meta&quot;>
+          <div><svg width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><path d=&quot;M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z&quot;/><circle cx=&quot;12&quot; cy=&quot;10&quot; r=&quot;2.5&quot;/></svg> Lyon, Auvergne-Rhône-Alpes</div>
+          <div><svg width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot;><rect x=&quot;3&quot; y=&quot;4&quot; width=&quot;18&quot; height=&quot;17&quot; rx=&quot;2&quot;/><path d=&quot;M3 9h18M8 2v4M16 2v4&quot;/></svg> Besoin : 12 – 23 juin 2026</div>
+          <div><svg class=&quot;star&quot; width=&quot;15&quot; height=&quot;15&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;currentColor&quot; stroke=&quot;none&quot;><path d=&quot;M12 2l2.9 6.3 6.8.6-5.1 4.5 1.5 6.7L12 17l-6 3.6 1.5-6.7L2.4 8.9l6.8-.6z&quot;/></svg> 4.8 <span class=&quot;muted&quot;>(120 avis)</span></div>
+        </div>
+        <div class=&quot;opp-foot&quot;><button class=&quot;view&quot;>Voir le profil</button></div>
+      </article>
+
+    </div>
+  </div>
+
+</body>
+</html>
+"></iframe></div>
+    </div>
+
+  </div>
+</div></section>
+
+<!-- REFLECTION -->
+<section><div class="wrap">
+  <div class="sec-head reveal"><span class="idx">(05)</span><h2 data-i18n="s_outcome">Outcome</h2><span class="rule"></span></div>
+  <div class="prose">
+    <div class="reveal"><p class="lead" data-i18n="outcome_lead">A calm, trustworthy product where a stressful, manual process becomes a <em>few clear taps.</em></p></div>
+    <div class="reveal"><p data-i18n="outcome_p1">Motion is used sparingly — only to reward the moments that matter, like a confirmed booking or a strong month. The same small design system carries the brand across mobile and web, so the experience always feels like one product.</p></div>
+  </div>
+</div></section>
+
+<!-- NEXT -->
+<section><div class="wrap">
+  <div class="next reveal">
+    <div class="l">
+      <small data-i18n="next_label">Next project</small>
+      <a href="dimagin-case-study.html" data-link>dimagin<span class="dot">.</span><span class="ar">→</span></a>
+    </div>
+    <a href="giulia-bedini-portfolio.html" class="home" data-link data-i18n="all_work">All work ↗</a>
+  </div>
+</div></section>
+
+<footer><div class="wrap"><div class="frow">
+  <span>© 2026 Giulia Bedini</span>
+  <span data-i18n="foot">Kinap — UX & UI case study</span>
+</div></div></footer>
+
+<script>
+const I18N={
+  en:{back:"Back to work",eyebrow:"Case study — 02",tagline:"Connecting healthcare professionals with the practices that need them.",
+    f_role:"Role",v_role:"UX & UI Design",f_scope:"Scope",v_scope:"Research → UI → Motion",f_platform:"Platform",v_platform:"Mobile app & web",f_year:"Year",
+    s_overview:"Overview",overview_lead:"Kinap matches doctors and healthcare professionals with the clinics and practices looking for short-term <em>replacements</em> — locum work, made simple.",
+    overview_p1:"I designed the experience end to end: discovering matched opportunities, opening up availability, agreeing on dates by message, confirming a booking, and looking back on activity — across both a mobile app and a web dashboard.",
+    overview_p2:"The teal-and-navy identity, the component library and the motion all came out of the same system, so the product feels calm and trustworthy at every step.",
+    s_challenge:"The challenge",challenge_lead:"Medical replacements are usually arranged through <em>word of mouth</em>, scattered calls and last-minute stress.",
+    challenge_p1:"The goal was to make finding and confirming a replacement feel as simple and reassuring as any modern booking — for two very different users: busy practitioners and understaffed facilities.",
+    challenge_p2:"That meant designing trust signals (ratings, reviews, match scores), a low-friction way to agree on dates, and moments of relief when a booking finally lands.",
+    s_flow:"The mobile flow",hint_live:"These are live prototypes — tap a screen to replay its animation.",
+    m1_t:"Agreeing on dates",m1_d:"A familiar, low-friction chat where practitioner and practice settle the details. The message types itself out, then sends.",
+    m2_t:"Booking confirmed",m2_d:"The reassuring payoff — a celebratory confirmation that recaps the essentials at a glance.",
+    m3_t:"Monthly recap",m3_d:"Activity and ratings counted up into a simple summary that builds momentum and trust.",
+    m4_t:"Professional profile",m4_d:"Experience, availability and reviews gathered in one trustworthy place.",
+    s_web:"On the web",
+    d1_t:"Availability dashboard",d1_d:"Practitioners open up their calendar; facilities instantly see which days are free, booked or available.",
+    d2_t:"Discover opportunities",d2_d:"Matched replacements ranked by fit, location and dates — each with the trust signals that make a decision easy.",
+    s_outcome:"Outcome",outcome_lead:"A calm, trustworthy product where a stressful, manual process becomes a <em>few clear taps.</em>",
+    outcome_p1:"Motion is used sparingly — only to reward the moments that matter, like a confirmed booking or a strong month. The same small design system carries the brand across mobile and web, so the experience always feels like one product.",
+    next_label:"Next project",all_work:"All work ↗",foot:"Kinap — UX & UI case study"},
+  fr:{back:"Retour aux projets",eyebrow:"Étude de cas — 02",tagline:"Relier les professionnels de santé aux cabinets qui ont besoin d’eux.",
+    f_role:"Rôle",v_role:"Design UX & UI",f_scope:"Périmètre",v_scope:"Recherche → UI → Motion",f_platform:"Plateforme",v_platform:"App mobile & web",f_year:"Année",
+    s_overview:"Aperçu",overview_lead:"Kinap met en relation médecins et professionnels de santé avec les cabinets et cliniques en quête de <em>remplacements</em> de courte durée — simplement.",
+    overview_p1:"J’ai conçu l’expérience de bout en bout : découvrir des opportunités correspondant au profil, ouvrir ses disponibilités, s’accorder sur les dates par message, confirmer un remplacement et revoir son activité — sur l’app mobile comme sur le tableau de bord web.",
+    overview_p2:"L’identité bleu-canard / marine, la bibliothèque de composants et les animations sont nées du même système : le produit reste calme et rassurant à chaque étape.",
+    s_challenge:"Le défi",challenge_lead:"Les remplacements médicaux se règlent d’habitude par <em>bouche-à-oreille</em>, appels dispersés et stress de dernière minute.",
+    challenge_p1:"L’objectif : rendre la recherche et la confirmation d’un remplacement aussi simples et rassurantes qu’une réservation moderne — pour deux profils très différents : praticiens débordés et structures en sous-effectif.",
+    challenge_p2:"Cela impliquait des signaux de confiance (notes, avis, scores de correspondance), une façon fluide de s’accorder sur les dates, et des moments de soulagement quand un remplacement se confirme enfin.",
+    s_flow:"Le parcours mobile",hint_live:"Ce sont de vrais prototypes — touchez un écran pour rejouer l’animation.",
+    m1_t:"S’accorder sur les dates",m1_d:"Une messagerie familière et fluide où praticien et cabinet règlent les détails. Le message s’écrit tout seul, puis s’envoie.",
+    m2_t:"Remplacement confirmé",m2_d:"La récompense rassurante — une confirmation festive qui récapitule l’essentiel d’un coup d’œil.",
+    m3_t:"Récap du mois",m3_d:"Activité et notes décomptées en un résumé simple qui crée de l’élan et de la confiance.",
+    m4_t:"Profil professionnel",m4_d:"Expérience, disponibilités et avis réunis dans un seul espace de confiance.",
+    s_web:"Sur le web",
+    d1_t:"Tableau de bord des disponibilités",d1_d:"Les praticiens ouvrent leur calendrier ; les structures voient aussitôt les jours libres, réservés ou disponibles.",
+    d2_t:"Découvrir des opportunités",d2_d:"Des remplacements classés par correspondance, lieu et dates — chacun avec les signaux de confiance qui facilitent la décision.",
+    s_outcome:"Résultat",outcome_lead:"Un produit calme et fiable où un processus manuel et stressant devient <em>quelques touches claires.</em>",
+    outcome_p1:"Le motion est utilisé avec parcimonie — uniquement pour récompenser les moments qui comptent, comme un remplacement confirmé ou un beau mois. Le même petit design system porte la marque du mobile au web : l’expérience reste un seul et même produit.",
+    next_label:"Projet suivant",all_work:"Tous les projets ↗",foot:"Kinap — étude de cas UX & UI"},
+  it:{back:"Torna ai progetti",eyebrow:"Case study — 02",tagline:"Collegare i professionisti della salute agli studi che ne hanno bisogno.",
+    f_role:"Ruolo",v_role:"Design UX & UI",f_scope:"Ambito",v_scope:"Ricerca → UI → Motion",f_platform:"Piattaforma",v_platform:"App mobile & web",f_year:"Anno",
+    s_overview:"Panoramica",overview_lead:"Kinap mette in contatto medici e professionisti sanitari con gli studi e le cliniche in cerca di <em>sostituzioni</em> brevi — il lavoro da locum, reso semplice.",
+    overview_p1:"Ho progettato l’esperienza dall’inizio alla fine: scoprire opportunità in linea col profilo, aprire le proprie disponibilità, accordarsi sulle date via messaggio, confermare una sostituzione e rivedere la propria attività — sia su app mobile sia su dashboard web.",
+    overview_p2:"L’identità verde-acqua / blu notte, la libreria di componenti e le animazioni nascono dallo stesso sistema: il prodotto resta calmo e affidabile a ogni passo.",
+    s_challenge:"La sfida",challenge_lead:"Le sostituzioni mediche di solito si organizzano col <em>passaparola</em>, telefonate sparse e stress dell’ultimo minuto.",
+    challenge_p1:"L’obiettivo: rendere la ricerca e la conferma di una sostituzione semplici e rassicuranti come qualsiasi prenotazione moderna — per due utenti molto diversi: professionisti indaffarati e strutture a corto di personale.",
+    challenge_p2:"Questo significava progettare segnali di fiducia (valutazioni, recensioni, punteggi di affinità), un modo fluido per accordarsi sulle date e momenti di sollievo quando una sostituzione finalmente si concretizza.",
+    s_flow:"Il flusso mobile",hint_live:"Sono prototipi reali — tocca uno schermo per rivedere l’animazione.",
+    m1_t:"Accordarsi sulle date",m1_d:"Una chat familiare e senza attriti dove professionista e studio definiscono i dettagli. Il messaggio si scrive da solo, poi parte.",
+    m2_t:"Sostituzione confermata",m2_d:"La ricompensa rassicurante — una conferma festosa che riepiloga l’essenziale a colpo d’occhio.",
+    m3_t:"Riepilogo del mese",m3_d:"Attività e valutazioni conteggiate in un riassunto semplice che crea slancio e fiducia.",
+    m4_t:"Profilo professionale",m4_d:"Esperienza, disponibilità e recensioni riunite in un unico spazio affidabile.",
+    s_web:"Sul web",
+    d1_t:"Dashboard delle disponibilità",d1_d:"I professionisti aprono il calendario; le strutture vedono subito i giorni liberi, prenotati o disponibili.",
+    d2_t:"Scopri opportunità",d2_d:"Sostituzioni ordinate per affinità, luogo e date — ognuna con i segnali di fiducia che rendono facile la scelta.",
+    s_outcome:"Risultato",outcome_lead:"Un prodotto calmo e affidabile dove un processo manuale e stressante diventa <em>pochi tocchi chiari.</em>",
+    outcome_p1:"Il motion è usato con parsimonia — solo per premiare i momenti che contano, come una sostituzione confermata o un buon mese. Lo stesso piccolo design system porta il brand da mobile a web: l’esperienza resta un unico prodotto.",
+    next_label:"Progetto successivo",all_work:"Tutti i progetti ↗",foot:"Kinap — case study UX & UI"}
+};
+function setLang(l){
+  document.documentElement.lang=l;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(I18N[l][k]!==undefined)el.innerHTML=I18N[l][k];});
+  document.querySelectorAll('#lang button').forEach(b=>b.classList.toggle('active',b.dataset.lang===l));
+}
+document.querySelectorAll('#lang button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.lang)));
+
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.12});
+document.querySelectorAll('.reveal,.mask').forEach(el=>io.observe(el));
+window.addEventListener('load',()=>setTimeout(()=>document.querySelectorAll('.hero .mask').forEach(m=>m.classList.add('in')),120));
+
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40));
+
+const cur=document.getElementById('cursor');
+if(matchMedia('(pointer:fine)').matches){
+  addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
+  document.querySelectorAll('[data-link]').forEach(el=>{el.addEventListener('mouseenter',()=>cur.classList.add('grow'));el.addEventListener('mouseleave',()=>cur.classList.remove('grow'));});
+}
+</script>
+<script>
+/* Fix: a page restored from the browser's back/forward cache (bfcache) or reached
+   via a history back/forward navigation can come back as a frozen, non-interactive
+   snapshot (links and cursor stop responding). Forcing a clean reload guarantees the
+   page is rebuilt exactly like a first visit, so everything works again. */
+(function(){
+  function freshReload(){ try{ location.reload(); }catch(e){} }
+  window.addEventListener('pageshow', function(ev){
+    var entries = (window.performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation') : [];
+    var nav = entries && entries[0];
+    if(ev.persisted || (nav && nav.type === 'back_forward')){
+      freshReload();
+    }
+  });
+  // Older browsers: navigation type via the legacy timing API.
+  if(window.performance && performance.navigation && performance.navigation.type === 2){
+    freshReload(); // TYPE_BACK_FORWARD
+  }
+})();
+</script>
+</body>
+</html>

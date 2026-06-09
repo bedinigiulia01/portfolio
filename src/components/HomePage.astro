@@ -1,0 +1,35 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from './Nav.astro';
+import Hero from './Hero.astro';
+import About from './About.astro';
+import WorkList from './WorkList.astro';
+import Contact from './Contact.astro';
+import Footer from './Footer.astro';
+import { useTranslations } from '../i18n/utils';
+import type { Lang } from '../i18n/ui';
+
+export interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const langs: Lang[] = ['en', 'fr', 'it'];
+const alternates = langs.map((l) => ({ lang: l, url: getRelativeLocaleUrl(l, '') }));
+const canonical = getRelativeLocaleUrl(lang, '');
+
+const titles: Record<Lang, string> = {
+  en: 'Giulia Bedini — UX & UI Product Designer',
+  fr: 'Giulia Bedini — Product Designer UX & UI',
+  it: 'Giulia Bedini — Product Designer UX & UI',
+};
+---
+<BaseLayout lang={lang} title={titles[lang]} description={t('hero_intro')} canonical={canonical} alternates={alternates}>
+  <Nav lang={lang} t={t} alternates={alternates} />
+  <div id="top"></div>
+  <Hero lang={lang} t={t} />
+  <About lang={lang} t={t} />
+  <WorkList lang={lang} t={t} />
+  <Contact lang={lang} t={t} />
+  <Footer lang={lang} t={t} />
+</BaseLayout>

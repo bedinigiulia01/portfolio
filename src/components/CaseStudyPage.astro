@@ -1,0 +1,234 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LangSwitcher from './LangSwitcher.astro';
+import PrototypeEmbed from './PrototypeEmbed.astro';
+import { getProject, nextProject } from '../data/projects';
+import { caseStudyContent } from '../data/caseStudyContent';
+import type { Lang } from '../i18n/ui';
+
+export interface Props { slug: string; lang: Lang }
+const { slug, lang } = Astro.props;
+
+const project = getProject(slug)!;
+const cs = caseStudyContent[slug as 'move-score' | 'kinap' | 'dimagin'][lang];
+const next = nextProject(project.slug);
+
+const langs: Lang[] = ['en', 'fr', 'it'];
+const alternates = langs.map((l) => ({ lang: l, url: getRelativeLocaleUrl(l, `work/${slug}`) }));
+const canonical = getRelativeLocaleUrl(lang, `work/${slug}`);
+const homeUrl = getRelativeLocaleUrl(lang, '');
+const nextUrl = getRelativeLocaleUrl(lang, `work/${next.slug}`);
+
+const isKinap = slug === 'kinap';
+const phones = project.prototypes.filter((p) => p.type === 'phone');
+const browsers = project.prototypes.filter((p) => p.type === 'browser');
+const single = project.prototypes[0];
+
+const moments = [
+  { n: '01', t: cs.mo1_t, d: cs.mo1_d },
+  { n: '02', t: cs.mo2_t, d: cs.mo2_d },
+  { n: '03', t: cs.mo3_t, d: cs.mo3_d },
+];
+const mobileCaps = [
+  { n: '01', t: cs.m1_t, d: cs.m1_d },
+  { n: '02', t: cs.m2_t, d: cs.m2_d },
+  { n: '03', t: cs.m3_t, d: cs.m3_d },
+  { n: '04', t: cs.m4_t, d: cs.m4_d },
+];
+const webCaps = [
+  { t: cs.d1_t, d: cs.d1_d },
+  { t: cs.d2_t, d: cs.d2_d },
+];
+---
+<BaseLayout lang={lang} title={`${project.name} · ${cs.eyebrow}`} description={cs.tagline} canonical={canonical} alternates={alternates}>
+  <nav id="nav">
+    <div class="wrap">
+      <div class="bar">
+        <a href={`${homeUrl}#work`} class="back" data-link><span class="ar">←</span><span>{cs.back}</span></a>
+        <LangSwitcher lang={lang} alternates={alternates} />
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="label"><span>{cs.eyebrow}</span></div>
+      <h1><span class="mask"><span>{project.name}<span class="dot">.</span></span></span></h1>
+      <p class="tagline" set:html={cs.tagline} />
+      <div class="facts reveal">
+        <div><small>{cs.f_role}</small><b>{cs.v_role}</b></div>
+        <div><small>{cs.f_scope}</small><b>{cs.v_scope}</b></div>
+        <div><small>{cs.f_platform}</small><b>{cs.v_platform}</b></div>
+        <div><small>{cs.f_year}</small><b>{project.year}</b></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <section><div class="wrap">
+    <div class="sec-head reveal"><span class="idx">(01)</span><h2>{cs.s_overview}</h2><span class="rule"></span></div>
+    <div class="prose">
+      <div class="reveal"><p class="lead" set:html={cs.overview_lead} /></div>
+      <div class="reveal">
+        <p set:html={cs.overview_p1} />
+        <p set:html={cs.overview_p2} />
+      </div>
+    </div>
+  </div></section>
+
+  <!-- CHALLENGE -->
+  <section><div class="wrap">
+    <div class="sec-head reveal"><span class="idx">(02)</span><h2>{cs.s_challenge}</h2><span class="rule"></span></div>
+    <div class="prose">
+      <div class="reveal"><p class="lead" set:html={cs.challenge_lead} /></div>
+      <div class="reveal">
+        <p set:html={cs.challenge_p1} />
+        <p set:html={cs.challenge_p2} />
+      </div>
+    </div>
+  </div></section>
+
+  {isKinap ? (
+    <>
+      <!-- MOBILE FLOW -->
+      <section><div class="wrap">
+        <div class="sec-head reveal"><span class="idx">(03)</span><h2>{cs.s_flow}</h2><span class="rule"></span></div>
+        <p class="hint reveal"><span>▶</span> <span set:html={cs.hint_live} /></p>
+        <div class="devices">
+          {phones.map((frame, i) => (
+            <div class="device reveal">
+              <div class="cap"><div class="pn">{mobileCaps[i].n}</div><div class="ct"><div class="t">{mobileCaps[i].t}</div><div class="d">{mobileCaps[i].d}</div></div></div>
+              <PrototypeEmbed frame={frame} />
+            </div>
+          ))}
+        </div>
+      </div></section>
+
+      <!-- WEB -->
+      <section><div class="wrap">
+        <div class="sec-head reveal"><span class="idx">(04)</span><h2>{cs.s_web}</h2><span class="rule"></span></div>
+        <div class="desktop-stack">
+          {browsers.map((frame, i) => (
+            <div class="reveal">
+              <div class="dcap"><div class="t">{webCaps[i].t}</div><div class="d">{webCaps[i].d}</div></div>
+              <PrototypeEmbed frame={frame} />
+            </div>
+          ))}
+        </div>
+      </div></section>
+    </>
+  ) : (
+    <>
+      <!-- TRY IT -->
+      <section><div class="wrap">
+        <div class="sec-head reveal"><span class="idx">(03)</span><h2>{cs.s_proto}</h2><span class="rule"></span></div>
+        <div class="proto">
+          <div class="hintbar reveal">
+            <span class="pill">{cs.proto_pill}</span>
+            <p set:html={cs.proto_hint} />
+          </div>
+          <div class="proto-stage reveal">
+            <PrototypeEmbed frame={single} />
+          </div>
+          {cs.phone_cap && <div class="phone-cap reveal">{cs.phone_cap}</div>}
+        </div>
+      </div></section>
+
+      <!-- DESIGNED MOMENTS -->
+      <section><div class="wrap">
+        <div class="sec-head reveal"><span class="idx">(04)</span><h2>{cs.s_moments}</h2><span class="rule"></span></div>
+        <div class="moments">
+          {moments.map((m) => (
+            <div class="moment reveal"><div class="mn">{m.n}</div><div class="mt">{m.t}</div><div class="md">{m.d}</div></div>
+          ))}
+        </div>
+      </div></section>
+    </>
+  )}
+
+  <!-- OUTCOME -->
+  <section><div class="wrap">
+    <div class="sec-head reveal"><span class="idx">(05)</span><h2>{cs.s_outcome}</h2><span class="rule"></span></div>
+    <div class="prose">
+      <div class="reveal"><p class="lead" set:html={cs.outcome_lead} /></div>
+      <div class="reveal"><p set:html={cs.outcome_p1} /></div>
+    </div>
+  </div></section>
+
+  <!-- NEXT -->
+  <section><div class="wrap">
+    <div class="next reveal">
+      <div class="l">
+        <small>{cs.next_label}</small>
+        <a href={nextUrl} data-link>{next.name}<span class="dot">.</span><span class="ar">→</span></a>
+      </div>
+      <a href={`${homeUrl}#work`} class="home" data-link>{cs.all_work}</a>
+    </div>
+  </div></section>
+
+  <footer><div class="wrap"><div class="frow">
+    <span>© 2026 Giulia Bedini</span>
+    <span>{cs.foot}</span>
+  </div></div></footer>
+</BaseLayout>
+
+<style>
+  .hero { padding-top: clamp(120px, 16vh, 170px); }
+  .hero .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+  .hero .label::before { content: ""; width: 34px; height: 1px; background: var(--muted); }
+  .hero h1 { font-family: var(--font-display); font-weight: 330; font-size: clamp(50px, 11vw, 150px); line-height: .9; letter-spacing: -.035em; }
+  .hero h1 :global(.dot) { color: var(--accent); }
+  .hero .tagline { font-family: var(--font-display); font-style: italic; font-weight: 330; font-size: clamp(22px, 3vw, 38px); line-height: 1.2; max-width: 22ch; margin-top: 34px; color: var(--muted); }
+  .facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid var(--line); padding-top: 20px; margin-top: clamp(48px, 7vw, 90px); }
+  @media (max-width: 760px) { .facts { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+  .facts div small { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--vert); display: block; margin-bottom: 7px; }
+  .facts div b { font-family: var(--font-display); font-weight: 400; font-size: 17px; }
+
+  .prose { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 80px); }
+  @media (max-width: 820px) { .prose { grid-template-columns: 1fr; } }
+  .prose .lead { font-family: var(--font-display); font-weight: 330; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.28; letter-spacing: -.015em; }
+  .prose .lead :global(em) { font-style: italic; color: var(--muted); }
+  .prose p { font-family: var(--font-mono); font-size: 12.5px; line-height: 2; color: var(--muted); margin-bottom: 20px; }
+
+  /* try-it (standard) */
+  .proto { margin-top: 6px; }
+  .hintbar { display: flex; align-items: flex-start; gap: 14px; background: #16331f; color: #eaf3ec; border-radius: 16px; padding: 18px 22px; margin: 0 auto 40px; max-width: 760px; }
+  .hintbar .pill { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; background: rgba(74,222,128,.18); color: #9be8b4; padding: 6px 11px; border-radius: 30px; white-space: nowrap; flex-shrink: 0; }
+  .hintbar p { font-family: var(--font-mono); font-size: 12px; line-height: 1.7; color: #bcd6c4; }
+  .hintbar :global(b) { color: #fff; font-weight: 700; }
+  .proto-stage { display: flex; justify-content: center; padding: 14px 0 6px; }
+  .phone-cap { text-align: center; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--vert); margin-top: 26px; }
+
+  /* designed moments */
+  .moments { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(24px, 3vw, 44px); margin-top: 6px; }
+  @media (max-width: 760px) { .moments { grid-template-columns: 1fr; } }
+  .moment .mn { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: 46px; line-height: 1; color: var(--num); }
+  .moment .mt { font-family: var(--font-display); font-weight: 400; font-size: 21px; letter-spacing: -.01em; margin: 8px 0 10px; }
+  .moment .md { font-family: var(--font-mono); font-size: 12px; line-height: 1.85; color: var(--muted); }
+
+  /* kinap: mobile devices */
+  .hint { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em; color: var(--vert); margin-top: 14px; display: flex; align-items: center; gap: 8px; }
+  .devices { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(34px, 5vw, 70px); margin-top: 36px; }
+  @media (max-width: 760px) { .devices { grid-template-columns: 1fr; } }
+  .device { position: relative; }
+  .device .cap { display: flex; gap: 12px; margin-bottom: 20px; }
+  .device .cap .pn { font-family: var(--font-display); font-style: italic; font-weight: 300; font-size: 30px; line-height: 1; color: var(--num); flex-shrink: 0; }
+  .device .cap .ct { padding-top: 5px; }
+  .device .cap .ct .t { font-family: var(--font-display); font-weight: 400; font-size: 18px; letter-spacing: -.01em; }
+  .device .cap .ct .d { font-family: var(--font-mono); font-size: 11px; line-height: 1.7; color: var(--muted); margin-top: 5px; max-width: 36ch; }
+
+  /* kinap: web stack */
+  .desktop-stack { display: flex; flex-direction: column; gap: clamp(40px, 6vw, 80px); }
+  .dcap { margin-bottom: 18px; }
+  .dcap .t { font-family: var(--font-display); font-weight: 400; font-size: clamp(20px, 2.2vw, 26px); letter-spacing: -.01em; }
+  .dcap .d { font-family: var(--font-mono); font-size: 12px; line-height: 1.8; color: var(--muted); margin-top: 8px; max-width: 60ch; }
+
+  /* next project */
+  .next { margin-top: clamp(90px, 13vw, 180px); border-top: 1px solid var(--line); padding-top: clamp(40px, 5vw, 70px); display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 24px; }
+  .next .l small { font-family: var(--font-mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--vert); }
+  .next .l a { font-family: var(--font-display); font-weight: 330; font-size: clamp(34px, 6vw, 72px); letter-spacing: -.03em; display: inline-flex; align-items: center; gap: 18px; margin-top: 6px; }
+  .next .l a .ar { font-size: .5em; transition: transform .4s var(--ease); }
+  .next .l a:hover .ar { transform: translateX(10px); }
+  .next .home { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; border-bottom: 1px solid var(--ink); padding-bottom: 5px; }
+</style>

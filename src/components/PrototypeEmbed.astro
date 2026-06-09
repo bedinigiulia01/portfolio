@@ -1,0 +1,77 @@
+---
+import type { PrototypeFrame } from '../data/projects';
+export interface Props {
+  frame: PrototypeFrame;
+}
+const { frame } = Astro.props;
+const isPhone = frame.type === 'phone';
+
+// Each prototype is a self-contained, responsive web page. We render it at a
+// fixed "design" width (so its own layout never breaks) and scale the whole
+// device frame down to fit the available column — proportional on every screen.
+const designW = isPhone ? 412 : 1200; // px (inner screen width)
+---
+<div class={`proto-fit ${isPhone ? 'is-phone' : 'is-browser'}`} data-cap={isPhone ? '1' : '0'}>
+  <div class="proto-fit-inner">
+    {isPhone ? (
+      <div class="phone-mock">
+        <div class="phone-screen">
+          <iframe src={frame.src} title={frame.title} loading="lazy" sandbox="allow-scripts allow-same-origin" style={`width:${designW}px`}></iframe>
+        </div>
+      </div>
+    ) : (
+      <div class="browser" style={`width:${designW}px`}>
+        <div class="chrome"><i></i><i></i><i></i><span class="url">{frame.url}</span></div>
+        <iframe src={frame.src} title={frame.title} loading="lazy" sandbox="allow-scripts allow-same-origin" style={`width:${designW}px`}></iframe>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .proto-fit { position: relative; width: 100%; }
+  /* Don't upscale a phone past its natural size on wide columns */
+  .proto-fit.is-phone { max-width: 436px; margin: 0 auto; }
+  .proto-fit-inner { position: absolute; top: 0; left: 50%; transform-origin: center top; }
+
+  /* smartphone mockup (sized to the 412px design screen) */
+  .phone-mock { position: relative; width: 436px; background: #0d0f0e; border-radius: 52px; padding: 12px; box-shadow: 0 60px 110px -45px rgba(26,24,19,.6), 0 0 0 2px rgba(255,255,255,.05) inset, 0 1px 0 rgba(255,255,255,.08) inset; }
+  .phone-mock::before { content: ""; position: absolute; top: 27px; left: 50%; transform: translateX(-50%); width: 100px; height: 26px; background: #0d0f0e; border-radius: 20px; z-index: 6; box-shadow: 0 0 0 1px rgba(255,255,255,.04); }
+  .phone-mock::after { content: ""; position: absolute; right: -2px; top: 150px; width: 2px; height: 62px; background: #1c201e; border-radius: 2px; }
+  .phone-screen { position: relative; border-radius: 40px; overflow: hidden; background: var(--paper); box-shadow: 0 0 0 1px rgba(0,0,0,.25); }
+  .phone-screen iframe { display: block; height: 760px; border: 0; background: var(--paper); }
+
+  /* browser window (sized to the 1200px design page) */
+  .browser { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 34px 80px -44px rgba(26,24,19,.5); background: #fff; }
+  .browser .chrome { display: flex; align-items: center; gap: 8px; padding: 13px 18px; background: #ece8df; border-bottom: 1px solid var(--line); }
+  .browser .chrome i { width: 11px; height: 11px; border-radius: 50%; background: #cfc7b6; }
+  .browser .chrome .url { margin-left: 14px; font-family: var(--font-mono); font-size: 13px; color: var(--vert); }
+  .browser iframe { display: block; height: 760px; border: 0; background: var(--paper); }
+</style>
+
+<script is:inline>
+  (function () {
+    function fit(el) {
+      var inner = el.querySelector('.proto-fit-inner');
+      if (!inner) return;
+      var natural = inner.firstElementChild;
+      if (!natural) return;
+      var naturalW = natural.offsetWidth;
+      var naturalH = natural.offsetHeight;
+      if (!naturalW) return;
+      var cap = el.getAttribute('data-cap') === '1';
+      var avail = el.clientWidth;
+      var scale = avail / naturalW;
+      if (cap) scale = Math.min(scale, 1);
+      inner.style.transform = 'translateX(-50%) scale(' + scale + ')';
+      el.style.height = (naturalH * scale) + 'px';
+    }
+    function fitAll() { document.querySelectorAll('.proto-fit').forEach(fit); }
+    fitAll();
+    window.addEventListener('load', fitAll);
+    window.addEventListener('resize', fitAll);
+    // Re-fit once iframes have painted (heights are fixed, but be safe)
+    setTimeout(fitAll, 300);
+    setTimeout(fitAll, 1200);
+  })();
+</script>
